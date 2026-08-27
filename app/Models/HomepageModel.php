@@ -34,12 +34,12 @@ class HomepageModel extends Model
         return $this->db->table('dock_gals')->orderBy('id', 'ASC')->get()->getResultArray();
     }
 
-    public function getHomeNews(): array
+    public function getHomeNews(int $limit = 4): array
     {
         return $this->db->table('informasi')
             ->where('STATUS_AKTIF', '1')
             ->orderBy('TANGGAL', 'DESC')
-            ->limit(4)
+            ->limit($limit)
             ->get()->getResultArray();
     }
 

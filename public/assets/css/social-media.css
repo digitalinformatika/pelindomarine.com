@@ -1,0 +1,226 @@
+/* Section "Media Sosial" homepage — Pelindo Marine.
+   Semua class berprefix pmsoc- agar tidak bentrok dengan CSS tema. */
+
+#pms-socialmedia {
+    padding: 60px 0;
+    background: #f4f8fd;
+}
+
+#pms-socialmedia .pmsoc-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+#pms-socialmedia .pmsoc-heading { text-align: center; }
+#pms-socialmedia .pmsoc-heading h5 { margin-bottom: 8px; }
+#pms-socialmedia .pmsoc-heading p { margin-bottom: 22px; }
+
+/* Baris tombol follow (pill) */
+#pms-socialmedia .pmsoc-pills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 38px;
+}
+#pms-socialmedia .pmsoc-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff !important;
+    text-decoration: none !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+    transition: transform .15s, box-shadow .15s;
+}
+#pms-socialmedia .pmsoc-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+}
+#pms-socialmedia .pmsoc-pill svg { width: 15px; height: 15px; flex-shrink: 0; }
+#pms-socialmedia .pmsoc-pill-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+#pms-socialmedia .pmsoc-pill-yt { background: #ff0000; }
+#pms-socialmedia .pmsoc-pill-fb { background: #1877f2; }
+#pms-socialmedia .pmsoc-pill-in { background: #0a66c2; }
+#pms-socialmedia .pmsoc-pill-x  { background: #0f1419; }
+
+/* Wrapper scroller: tempat panah navigasi & fade tepi */
+#pms-socialmedia .pmsoc-scrollwrap { position: relative; }
+
+#pms-socialmedia .pmsoc-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid #e3ecf7;
+    border-radius: 50%;
+    background: #fff;
+    color: #204280;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(32, 66, 128, 0.18);
+    transition: transform .15s, box-shadow .15s, opacity .2s;
+}
+#pms-socialmedia .pmsoc-arrow:hover {
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 10px 24px rgba(32, 66, 128, 0.25);
+}
+#pms-socialmedia .pmsoc-arrow svg { width: 20px; height: 20px; }
+#pms-socialmedia .pmsoc-arrow-left  { left: -14px; }
+#pms-socialmedia .pmsoc-arrow-right { right: -14px; }
+#pms-socialmedia .pmsoc-arrow-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Gradasi pudar di tepi — isyarat masih ada konten tersembunyi */
+#pms-socialmedia .pmsoc-fade {
+    position: absolute;
+    top: 0;
+    bottom: 18px;
+    z-index: 4;
+    width: 56px;
+    pointer-events: none;
+    transition: opacity .2s;
+}
+#pms-socialmedia .pmsoc-fade-left  { left: 0;  background: linear-gradient(to right, #f4f8fd, rgba(244,248,253,0)); }
+#pms-socialmedia .pmsoc-fade-right { right: 0; background: linear-gradient(to left,  #f4f8fd, rgba(244,248,253,0)); }
+#pms-socialmedia .pmsoc-at-start .pmsoc-fade-left  { opacity: 0; }
+#pms-socialmedia .pmsoc-at-end   .pmsoc-fade-right { opacity: 0; }
+
+/* Scroller horizontal satu baris dengan snap */
+#pms-socialmedia .pmsoc-scroller {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 20px;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    padding: 4px 4px 18px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #b9cdea transparent;
+}
+#pms-socialmedia .pmsoc-scroller::-webkit-scrollbar { height: 8px; }
+#pms-socialmedia .pmsoc-scroller::-webkit-scrollbar-track { background: transparent; }
+#pms-socialmedia .pmsoc-scroller::-webkit-scrollbar-thumb {
+    background: #b9cdea;
+    border-radius: 999px;
+}
+#pms-socialmedia .pmsoc-scroller::-webkit-scrollbar-thumb:hover { background: #8fb0dd; }
+
+#pms-socialmedia .pmsoc-item {
+    flex: 0 0 380px !important;
+    width: 380px;
+    max-width: 85vw;
+    float: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    scroll-snap-align: start;
+}
+
+/* Kartu */
+#pms-socialmedia .pmsoc-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid #e3ecf7;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(32, 66, 128, 0.08);
+    overflow: hidden;
+}
+#pms-socialmedia .pmsoc-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #204280;
+    border-bottom: 1px solid #eef3fa;
+}
+#pms-socialmedia .pmsoc-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    color: #fff;
+}
+#pms-socialmedia .pmsoc-badge svg { width: 16px; height: 16px; }
+#pms-socialmedia .pmsoc-badge-yt { background: #ff0000; }
+#pms-socialmedia .pmsoc-badge-ig { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
+#pms-socialmedia .pmsoc-badge-fb { background: #1877f2; }
+#pms-socialmedia .pmsoc-badge-x  { background: #0f1419; }
+#pms-socialmedia .pmsoc-badge-in { background: #0a66c2; }
+
+/* Area embed di dalam kartu */
+#pms-socialmedia .pmsoc-embed {
+    flex: 1;
+    padding: 12px;
+    overflow: hidden;
+    min-height: 420px;
+}
+#pms-socialmedia .pmsoc-embed-video { padding: 0; min-height: 0; }
+#pms-socialmedia .pmsoc-embed-video iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 432px;
+    border: 0;
+}
+/* Iframe Facebook berukuran tetap 340x420 — dipusatkan agar tidak terpotong */
+#pms-socialmedia .pmsoc-embed-fb {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+#pms-socialmedia .pmsoc-embed-fb iframe { border: 0; }
+
+/* Kartu profil (Instagram fallback & LinkedIn) */
+#pms-socialmedia .pmsoc-profilecard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 396px;
+    border-radius: 12px;
+    color: #204280 !important;
+    text-decoration: none !important;
+    text-align: center;
+    padding: 20px;
+    transition: transform .15s;
+}
+#pms-socialmedia .pmsoc-profilecard:hover { transform: scale(1.02); }
+#pms-socialmedia .pmsoc-profilecard b { font-size: 16px; }
+#pms-socialmedia .pmsoc-profilecard > span:last-child { font-size: 13px; color: #5b6b8c; }
+#pms-socialmedia .pmsoc-profileicon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    color: #fff;
+}
+#pms-socialmedia .pmsoc-profileicon svg { width: 38px; height: 38px; }
+#pms-socialmedia .pmsoc-igcard { background: linear-gradient(135deg, #fdf2f8, #eef4ff); }
+#pms-socialmedia .pmsoc-igicon { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
+#pms-socialmedia .pmsoc-incard { background: linear-gradient(135deg, #eef6ff, #e8f0fb); }
+#pms-socialmedia .pmsoc-inicon { background: #0a66c2; }
+
+@media (max-width: 767px) {
+    #pms-socialmedia { padding: 40px 0; }
+    #pms-socialmedia .pmsoc-embed-video iframe { min-height: 240px; }
+}

@@ -62,29 +62,39 @@
 	</div>
 </section>
 
-<section id="pms-innerblock-small">
-	<div class="container-fluid" style="background: #ff8600; min-height: 150px;">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12">
-					<div class="owl-carousel newsslides">
-						<?php
-							foreach ($homenews as $n) {
-						?>
-						<div class="item">
-							<div class="titlenews3"><a href="company/readnews/<?php echo $n['INFORMASI_ID']; ?>" class="themeblue">
-							<?php
-							$headline = htmlspecialchars_decode($n['NAMA'], ENT_QUOTES);
-							if ($weblangs=='english' && !empty($n['TITLE'])) $headline = htmlspecialchars_decode($n['TITLE'], ENT_QUOTES);
-							echo $headline;
-							?>
-                            </a></div>
-							<div class="datenews3"><?php echo date('l, d M Y', strtotime($n['TANGGAL'])); ?></div>
-						</div>
-						<?php } ?>
+<section id="pms-othernews">
+	<div class="container animate-box">
+		<div class="othernews-head">
+			<h4 class="othernews-title"><?php echo ($weblangs=='indonesia') ? 'Berita Lainnya' : 'Other News'; ?></h4>
+			<a href="company/news" class="othernews-all"><?php echo ($weblangs=='indonesia') ? 'Lihat Semua' : 'View All'; ?></a>
+		</div>
+		<div class="row">
+			<?php
+				$shown = 0;
+				foreach ($homenews as $n) {
+					if ($n['INFORMASI_ID'] == $newsdetail['INFORMASI_ID']) continue;
+					if ($shown >= 6) break;
+					$shown++;
+
+					$headline = htmlspecialchars_decode($n['NAMA'], ENT_QUOTES);
+					if ($weblangs=='english' && !empty($n['TITLE'])) $headline = htmlspecialchars_decode($n['TITLE'], ENT_QUOTES);
+
+					if (!file_exists("upload/news/".$n['LINK_FILE'])) $thumb = "upload/news/nopic.png";
+					if (file_exists("main/uploads/informasi/".$n['LINK_FILE'])) $thumb = "main/uploads/informasi/".$n['LINK_FILE'];
+			?>
+			<div class="col-md-4 col-sm-6 col-12 mb-4">
+				<a href="company/readnews/<?php echo $n['INFORMASI_ID']; ?>" class="othernews-card">
+					<div class="othernews-thumb">
+						<img src="<?php echo $thumb; ?>" alt="<?php echo strip_tags($headline); ?>" class="img-fluid">
 					</div>
-				</div>
+					<div class="othernews-body">
+						<div class="othernews-date"><?php echo date('d M Y', strtotime($n['TANGGAL'])); ?></div>
+						<div class="othernews-headline"><?php echo $headline; ?></div>
+						<span class="othernews-more"><?php echo ($weblangs=='indonesia') ? 'Lebih Lanjut' : 'Read More'; ?></span>
+					</div>
+				</a>
 			</div>
+			<?php } ?>
 		</div>
 	</div>
 </section>

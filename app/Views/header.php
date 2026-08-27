@@ -51,7 +51,7 @@
 	<!-- Bootstrap  -->
 	<link rel="stylesheet" href="<?php echo base_url('/'); ?>assets/js/owl-carousel/owl.carousel.min.css" />
 	<link rel="stylesheet" href="<?php echo base_url('/'); ?>assets/css/bootstrap.min.css">
-	<link rel="stylesheet" href="<?php echo base_url('/'); ?>assets/css/ptpms2.css?ver=2">
+	<link rel="stylesheet" href="<?php echo base_url('/'); ?>assets/css/ptpms2.css?ver=3">
 
 	<!-- Modernizr JS -->
 	<script src="<?php echo base_url('/'); ?>assets/js/modernizr-2.6.2.min.js"></script>

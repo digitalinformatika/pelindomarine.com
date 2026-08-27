@@ -108,7 +108,7 @@ class Home extends BaseController
             'newsdetail' => $newsdetail,
             'title'      => $newsdetail['NAMA'],
             'newslist'   => $this->newsModel->getNewsList(),
-            'homenews'   => $this->homepageModel->getHomeNews(),
+            'homenews'   => $this->homepageModel->getHomeNews(7),
         ]);
     }
 

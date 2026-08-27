@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mysql -h 43.133.145.105 -u digitalinformatika -pdiginfo@2026 -P 3306 pelindomarine --skip-ssl -e ' *)",
+      "Bash(curl -s -b ck4.txt http://localhost:8083/admin/jenis_kapal -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s -b ck4.txt http://localhost:8083/admin/berita -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s -b ck4.txt http://localhost:8083/setting/user -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(mysql -h 43.133.145.105 -u digitalinformatika -p'diginfo@2026' -P 3306 pelindomarine --skip-ssl -e \"DELETE FROM users WHERE UID=1000000952 AND USER_NAME='testakses'; SELECT COUNT\\(*\\) sisa FROM users WHERE USER_NAME='testakses';\")",
+      "Bash(mysql -h 43.133.145.105 -u digitalinformatika -p'diginfo@2026' -P 3306 pelindomarine --skip-ssl -e \"DESCRIBE galeri;\")",
+      "Bash(mysql -h 43.133.145.105 -u digitalinformatika -p'diginfo@2026' -P 3306 pelindomarine --skip-ssl -e \"DESCRIBE kapal;\")",
+      "Bash(mysql -h 43.133.145.105 -u digitalinformatika -p'diginfo@2026' -P 3306 pelindomarine --skip-ssl -e \"DESCRIBE karir;\")",
+      "Bash(mysql -h 43.133.145.105 -u digitalinformatika -p'diginfo@2026' -P 3306 pelindomarine --skip-ssl -e \"DESCRIBE kontak;\")",
+      "Bash(curl -s -b ck.txt http://localhost:8083/admin -o dash.html -w \"admin: %{http_code}\\\\n\")",
+      "Bash(curl -s -b ck.txt http://localhost:8083/admin -o dash2.html -w \"admin: %{http_code}\\\\n\")",
+      "Bash(curl -s -b ck.txt http://localhost:8083/admin/berita -o b2.html -w \"berita: %{http_code}\\\\n\")"
+    ]
+  }
+}

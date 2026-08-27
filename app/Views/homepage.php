@@ -550,6 +550,8 @@
 		</div>
 	</section>
 	
+	<?= view('partials/social_media') ?>
+
 	<section id="pms-affiliate">
 		<div class="container-fluid bgaff">
 			<div class="container">
