@@ -99,7 +99,7 @@ class FormWizard extends BaseController
         // Simpan salinan dokumen sebagai file
         helper('filesystem');
         $namafile = url_title(strtolower($nama)) . '-' . $tmpdates . '.txt';
-        $uploadDir = FCPATH . 'upload/ppid/';
+        $uploadDir = $this->pelindo->uploadPath . '/ppid/';
 
         if (! is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);

@@ -14,6 +14,14 @@ class Pelindo extends BaseConfig
     /** Email penerima form kontak / marine care */
     public string $contactEmail = 'info@pelindomarine.com';
 
+    /**
+     * Folder penyimpanan file upload/arsip form.
+     * Kosong = public/upload. Di production diarahkan ke folder
+     * mounting bucket GCS pada VM (mis. pelindo.uploadPath = /mnt/gcs/upload),
+     * tanpa perlu credential/SDK GCS.
+     */
+    public string $uploadPath = '';
+
     /** Penerima notifikasi form E-PPID (dipisah koma) */
     public string $ppidRecipients = '';
 
@@ -59,4 +67,15 @@ class Pelindo extends BaseConfig
     public string $linkedinUrl = 'https://www.linkedin.com/company/pt-pelindo-marines/';
     public string $twitterUrl  = 'https://twitter.com/pelindomarines';
     public string $youtubeUrl  = 'https://www.youtube.com/c/PelindoMarines';
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        if ($this->uploadPath === '') {
+            $this->uploadPath = FCPATH . 'upload';
+        }
+
+        $this->uploadPath = rtrim($this->uploadPath, '/\\');
+    }
 }
