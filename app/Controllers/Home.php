@@ -38,6 +38,7 @@ class Home extends BaseController
 
         return $this->renderPage('homepage', [
             'welcome'     => $this->homepageModel->getWelcome(),
+            'homebanners' => $this->homepageModel->getHomeBanners(),
             'homebody'    => $this->homepageModel->getHomebody(),
             'homecert'    => $this->homepageModel->getHomeCert(),
             'homevessel'  => $this->homepageModel->getHomeVessel(),

@@ -4,15 +4,7 @@
 	//session language
 	$weblangs = session('weblang');
 	
-	foreach ($welcome as $w) {
-		if ($w['status']==1) {
-			$bgimage = $w['link_file'];
-			$headtitle = $w['title'];
-			$headdesc = $w['descs'];
-			$headtitle_ina = $w['judul'];
-			$headdesc_ina = $w['deskripsi'];
-		}
-	}
+	
 	foreach ($homebody as $p) {
 		//homepage profile short intro
 		if ($p['type']=='intro') $pintro = $p['value'];
@@ -20,9 +12,71 @@
 		if ($p['type']=='intro_id') $pintroid = $p['value'];
 		if ($p['type']=='introdesc_id') $pintrodescid = $p['value'];
 	}
+
+	// Persiapkan background banner
+	$activeBanners = [];
+	foreach (($homebanners ?? []) as $b) {
+		$bRel = ltrim((string) ($b['gambar'] ?? ''), '/\\');
+		$bImg = null;
+		if (!empty($bRel)) {
+			if (is_file(FCPATH . 'uploads/' . $bRel)) {
+				$bImg = base_url('uploads/' . $bRel);
+			} elseif (is_file(FCPATH . 'upload/' . $bRel)) {
+				$bImg = base_url('upload/' . $bRel);
+			} elseif (is_file(FCPATH . $bRel)) {
+				$bImg = base_url($bRel);
+			}
+		}
+		if ($bImg) {
+			$b['resolved_img'] = $bImg;
+			$activeBanners[] = $b;
+		}
+	}
+	$bannerCount = count($activeBanners);
+	$fallbackBg = base_url('upload/homepage/p-mainimage.jpg');
 ?>
-	<section id="pms-welcome" class="js-fullheight" style="background-image: url(<?php echo base_url('/'); ?>upload/homepage/p-mainimage.jpg" data-next="yes">
-		<div class="container">
+	<section id="pms-welcome" class="js-fullheight" style="position: relative; overflow: hidden; background-color: #0b192c; <?php if ($bannerCount <= 1) { ?>background-image: url('<?php echo $bannerCount === 1 ? $activeBanners[0]['resolved_img'] : $fallbackBg; ?>'); background-size: cover; background-position: center;<?php } ?>" data-next="yes">
+
+		<?php if ($bannerCount > 1) { ?>
+		<!-- Hero Slider Background (Otomatis Slide, Tanpa Tombol Navigasi) -->
+		<div class="pms-hero-slider-wrap" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; overflow: hidden; z-index: 1;">
+			<?php foreach ($activeBanners as $idx => $b) { ?>
+				<div class="pms-hero-slide" data-duration="<?php echo (int) ($b['durasi'] ?? 5); ?>" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('<?php echo $b['resolved_img']; ?>'); background-size: cover; background-position: center; background-repeat: no-repeat; opacity: <?php echo $idx === 0 ? '1' : '0'; ?>; transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1); will-change: opacity;">
+					<?php if (!empty($b['url'])) { ?>
+						<a href="<?php echo esc($b['url'], 'attr'); ?>" target="<?php echo !empty($b['is_new_tab']) ? '_blank' : '_self'; ?>" rel="noopener" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; z-index: 2; text-indent: -9999px;">Banner Link</a>
+					<?php } ?>
+				</div>
+			<?php } ?>
+		</div>
+		<script>
+		(function() {
+			var slides = document.querySelectorAll('#pms-welcome .pms-hero-slide');
+			if (!slides || slides.length <= 1) return;
+			var currentIdx = 0;
+			var timerId = null;
+
+			function advanceSlide() {
+				var prev = slides[currentIdx];
+				currentIdx = (currentIdx + 1) % slides.length;
+				var next = slides[currentIdx];
+
+				prev.style.opacity = '0';
+				next.style.opacity = '1';
+
+				var dur = parseInt(next.getAttribute('data-duration') || '5', 10);
+				if (isNaN(dur) || dur < 1) dur = 5;
+				timerId = setTimeout(advanceSlide, dur * 1000);
+			}
+
+			var initDur = parseInt(slides[0].getAttribute('data-duration') || '5', 10);
+			if (isNaN(initDur) || initDur < 1) initDur = 5;
+			timerId = setTimeout(advanceSlide, initDur * 1000);
+		})();
+		</script>
+		<?php } ?>
+
+		<!-- Overlay & Slogan Maritim Statis -->
+		<div class="container" style="position: relative; z-index: 5;">
 			<div class="pms-intro js-fullheight">
 				
 				<div class="pms-intro-text">

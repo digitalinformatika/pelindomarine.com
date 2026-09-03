@@ -124,3 +124,7 @@ _modules/*
 
 /results/
 /phpunit.xml
+
+# User uploads (keep directory & .htaccess, ignore uploaded files)
+/public/uploads/*
+!/public/uploads/.htaccess

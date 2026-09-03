@@ -9,13 +9,29 @@
 		if ($m['type']=='telp2') $mphone2 = $m['value'];
 	}
 	$auctionstat = "";
-	$linkimg = "";
+	$activeWelcomePopups = [];
 	if (!uri_segment(1)) {
-		foreach (($welcome ?? []) as $l) {
-			if ($l['status']=="1") {
-				$auctionstat = "ON";
-				$linkimg = "../main/uploads/".$l['link_file'];
+		foreach (($welcome ?? []) as $wItem) {
+			if (($wItem['status'] ?? '') == "1") {
+				$rel = ltrim((string) ($wItem['link_file'] ?? ''), '/\\');
+				$wImg = null;
+				if (!empty($rel)) {
+					if (is_file(FCPATH . 'uploads/' . $rel)) {
+						$wImg = base_url('uploads/' . $rel);
+					} elseif (is_file(FCPATH . 'upload/' . $rel)) {
+						$wImg = base_url('upload/' . $rel);
+					} elseif (is_file(FCPATH . $rel)) {
+						$wImg = base_url($rel);
+					}
+				}
+				if ($wImg) {
+					$wItem['resolved_img'] = $wImg;
+					$activeWelcomePopups[] = $wItem;
+				}
 			}
+		}
+		if (!empty($activeWelcomePopups)) {
+			$auctionstat = "ON";
 		}
 	}
 ?>
@@ -198,27 +214,263 @@
 		<!-- END #pms-footer -->
 	</div>
 	
-	<?php
-		service('response')->setCookie('pop_status', '1', 3600);
+	<?php if (!empty($activeWelcomePopups)) { 
+		$popupCount = count($activeWelcomePopups);
+		$isIndo = ($weblangs == 'indonesia');
+		$txtDontShow = $isIndo ? 'Jangan tampilkan pesan ini lagi' : "Don't show this message again";
+		$txtVisit = $isIndo ? 'Kunjungi Tautan' : 'Visit Link';
 	?>
-	<div class="modal fade" id="gettrial" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true"  data-backdrop="static">
-      <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered" role="document">
-        <div class="modal-content">
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="showpopmini();">
-				<img src="images/iclose.png" alt="" title="" width="20">
-			</button>
-			<div class="modal-body">
-			  <a href="https://eproc.pelindo.co.id/app/index/?reqPerusahaan=pms"><img src="<?php echo $linkimg; ?>" alt="" title="" class="img-fluid"></a>
+	<!-- Maritime Submarine Welcome Screen Modal -->
+	<style>
+		#gettrial.modal {
+			background: rgba(4, 13, 26, 0.88);
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
+			padding-left: 0 !important;
+		}
+		#gettrial .modal-dialog {
+			max-width: 820px;
+			margin: 2rem auto;
+		}
+		.pms-submarine-card {
+			background: linear-gradient(165deg, #0b1c33 0%, #061222 100%) !important;
+			border: 1px solid rgba(0, 173, 181, 0.4) !important;
+			border-radius: 20px !important;
+			box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 173, 181, 0.22) !important;
+			position: relative;
+			overflow: hidden;
+			color: #e2e8f0;
+			padding: 0;
+		}
+		.pms-submarine-sonar-bar {
+			height: 3px;
+			width: 100%;
+			background: linear-gradient(90deg, #00ADB5 0%, #38ef7d 50%, #00ADB5 100%);
+			box-shadow: 0 0 12px rgba(0, 173, 181, 0.8);
+		}
+		.pms-submarine-close-btn {
+			position: absolute;
+			top: 14px;
+			right: 14px;
+			width: 38px;
+			height: 38px;
+			border-radius: 50%;
+			background: rgba(11, 28, 51, 0.9);
+			border: 1px solid rgba(0, 173, 181, 0.5);
+			color: #00ADB5;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			z-index: 30;
+			transition: all 0.25s ease;
+			outline: none;
+			padding: 0;
+		}
+		.pms-submarine-close-btn:hover {
+			background: #00ADB5;
+			color: #061222;
+			transform: rotate(90deg) scale(1.08);
+			box-shadow: 0 0 16px rgba(0, 173, 181, 0.7);
+		}
+		.pms-popup-slider-container {
+			position: relative;
+			overflow: hidden;
+			width: 100%;
+			min-height: 220px;
+			background: #040a14;
+		}
+		.pms-popup-slide-item {
+			display: none;
+			width: 100%;
+			text-align: center;
+			animation: pmsFadeIn 0.4s ease-out forwards;
+		}
+		.pms-popup-slide-item.active {
+			display: block;
+		}
+		@keyframes pmsFadeIn {
+			from { opacity: 0; transform: scale(0.985); }
+			to { opacity: 1; transform: scale(1); }
+		}
+		.pms-popup-img-wrap {
+			position: relative;
+			display: block;
+			max-height: 72vh;
+			overflow: hidden;
+			background: #02070f;
+			text-decoration: none;
+		}
+		.pms-popup-img-wrap img {
+			max-height: 72vh;
+			width: auto;
+			max-width: 100%;
+			margin: 0 auto;
+			display: block;
+			object-fit: contain;
+			transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+		}
+		.pms-popup-img-wrap:hover img {
+			transform: scale(1.015);
+		}
+		.pms-popup-cta-badge {
+			position: absolute;
+			bottom: 14px;
+			right: 16px;
+			background: rgba(11, 28, 51, 0.9);
+			border: 1px solid rgba(0, 173, 181, 0.6);
+			backdrop-filter: blur(6px);
+			-webkit-backdrop-filter: blur(6px);
+			color: #00e1d9;
+			padding: 7px 16px;
+			border-radius: 30px;
+			font-size: 12px;
+			font-weight: 600;
+			letter-spacing: 0.5px;
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+			transition: all 0.25s ease;
+		}
+		.pms-popup-img-wrap:hover .pms-popup-cta-badge {
+			background: #00ADB5;
+			color: #040d1a;
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(0, 173, 181, 0.6);
+		}
+		.pms-popup-nav-btn {
+			position: absolute;
+			top: 50%;
+			transform: translateY(-50%);
+			width: 44px;
+			height: 44px;
+			border-radius: 50%;
+			background: rgba(6, 18, 34, 0.85);
+			border: 1px solid rgba(0, 173, 181, 0.4);
+			color: #00ADB5;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			z-index: 20;
+			transition: all 0.25s ease;
+			outline: none;
+			padding: 0;
+		}
+		.pms-popup-nav-btn:hover {
+			background: #00ADB5;
+			color: #061222;
+			transform: translateY(-50%) scale(1.1);
+			box-shadow: 0 0 16px rgba(0, 173, 181, 0.7);
+		}
+		.pms-popup-nav-prev { left: 14px; }
+		.pms-popup-nav-next { right: 14px; }
+		.pms-submarine-footer {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			flex-wrap: wrap;
+			gap: 12px;
+			padding: 12px 20px;
+			background: rgba(4, 13, 26, 0.95);
+			border-top: 1px solid rgba(0, 173, 181, 0.2);
+			font-size: 13px;
+		}
+		.pms-submarine-dots {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		.pms-submarine-dot {
+			width: 8px;
+			height: 8px;
+			border-radius: 4px;
+			background: rgba(255, 255, 255, 0.25);
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+		.pms-submarine-dot.active {
+			width: 22px;
+			background: #00ADB5;
+			box-shadow: 0 0 8px #00ADB5;
+		}
+	</style>
+
+	<div class="modal fade" id="gettrial" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content pms-submarine-card">
+				<!-- Glowing Sonar Trim -->
+				<div class="pms-submarine-sonar-bar"></div>
+
+				<!-- Floating Close Button -->
+				<button type="button" class="pms-submarine-close-btn" data-dismiss="modal" aria-label="Close" onclick="handlePmsPopupClose();">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<line x1="18" y1="6" x2="6" y2="18"></line>
+						<line x1="6" y1="6" x2="18" y2="18"></line>
+					</svg>
+				</button>
+
+				<!-- Popup Slides Container -->
+				<div class="pms-popup-slider-container">
+					<?php foreach ($activeWelcomePopups as $idx => $popup) { 
+						$hasUrl = !empty($popup['url']);
+						$targetBlank = !empty($popup['is_new_tab']) ? '_blank' : '_self';
+					?>
+						<div class="pms-popup-slide-item <?php echo $idx === 0 ? 'active' : ''; ?>" data-index="<?php echo $idx; ?>">
+							<?php if ($hasUrl) { ?>
+								<a href="<?php echo esc($popup['url'], 'attr'); ?>" target="<?php echo $targetBlank; ?>" rel="noopener" class="pms-popup-img-wrap">
+									<img src="<?php echo $popup['resolved_img']; ?>" alt="Pelindo Marines Welcome" class="img-fluid">
+									<span class="pms-popup-cta-badge">
+										<?php echo $txtVisit; ?>
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+											<line x1="7" y1="17" x2="17" y2="7"></line>
+											<polyline points="7 7 17 7 17 17"></polyline>
+										</svg>
+									</span>
+								</a>
+							<?php } else { ?>
+								<div class="pms-popup-img-wrap">
+									<img src="<?php echo $popup['resolved_img']; ?>" alt="Pelindo Marines Welcome" class="img-fluid">
+								</div>
+							<?php } ?>
+						</div>
+					<?php } ?>
+
+					<?php if ($popupCount > 1) { ?>
+						<!-- Nav Arrows -->
+						<button type="button" class="pms-popup-nav-btn pms-popup-nav-prev" onclick="pmsPrevPopup();" aria-label="Previous">
+							<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<polyline points="15 18 9 12 15 6"></polyline>
+							</svg>
+						</button>
+						<button type="button" class="pms-popup-nav-btn pms-popup-nav-next" onclick="pmsNextPopup();" aria-label="Next">
+							<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<polyline points="9 18 15 12 9 6"></polyline>
+							</svg>
+						</button>
+					<?php } ?>
+				</div>
+
+				<!-- Maritime Footer -->
+				<div class="pms-submarine-footer">
+					<label class="d-inline-flex align-items-center mb-0" style="cursor: pointer; user-select: none; font-size: 12.5px;">
+						<input type="checkbox" id="chk-pms-dontshow" style="margin-right: 8px; accent-color: #00ADB5; width: 16px; height: 16px; cursor: pointer;">
+						<span style="color: #94a3b8; font-weight: 500;"><?php echo $txtDontShow; ?></span>
+					</label>
+
+					<?php if ($popupCount > 1) { ?>
+						<div class="pms-submarine-dots">
+							<?php for ($d = 0; $d < $popupCount; $d++) { ?>
+								<span class="pms-submarine-dot <?php echo $d === 0 ? 'active' : ''; ?>" data-dot="<?php echo $d; ?>" onclick="pmsGoPopup(<?php echo $d; ?>);"></span>
+							<?php } ?>
+						</div>
+					<?php } ?>
+				</div>
 			</div>
-			<div class="modal-footer">
-			  <img src="images/iclose.png" alt="" title="" width="12"> don't show this message again <?php
-			  $popcookie= get_cookie('pop_status');
-			  //echo $popcookie;
-			  ?>
-			</div>
-        </div>
-      </div>
-    </div>
+		</div>
+	</div>
+	<?php } ?>
 	
 	<div class='scrolltop'>
 		<div class='scroll icon'><img src="images/goup.png" width="50"></div>
@@ -345,23 +597,73 @@
 	
 	<?php
 		if (!uri_segment(1)) {
-			if ($auctionstat=="ON") {
+			if ($auctionstat=="ON" && !empty($activeWelcomePopups)) {
 	?>
     <script>
-      $(document).ready(function(){
-        setTimeout(function () { $("#gettrial").modal('show'); }, 1000);
-      });
-    </script>
-    
-    <script>
-      function showpopmini(){ 
-        var mq = window.matchMedia( "(min-width: 500px)" );
-        if (mq.matches) {
-          $('#pop-mini').toggle();
-        } else {
-          $('#popmini').toggle();
+      var pmsCurrentPopup = 0;
+      var pmsPopupTotal = <?php echo count($activeWelcomePopups); ?>;
+
+      function pmsGoPopup(targetIdx) {
+        var slides = document.querySelectorAll('.pms-popup-slide-item');
+        var dots = document.querySelectorAll('.pms-submarine-dot');
+        if (!slides || slides.length === 0) return;
+        pmsCurrentPopup = (targetIdx + slides.length) % slides.length;
+        for (var i = 0; i < slides.length; i++) {
+          if (i === pmsCurrentPopup) {
+            slides[i].classList.add('active');
+          } else {
+            slides[i].classList.remove('active');
+          }
+        }
+        for (var d = 0; d < dots.length; d++) {
+          if (d === pmsCurrentPopup) {
+            dots[d].classList.add('active');
+          } else {
+            dots[d].classList.remove('active');
+          }
         }
       }
+
+      function pmsNextPopup() { pmsGoPopup(pmsCurrentPopup + 1); }
+      function pmsPrevPopup() { pmsGoPopup(pmsCurrentPopup - 1); }
+
+      function handlePmsPopupClose() {
+        var chk = document.getElementById('chk-pms-dontshow');
+        if (chk && chk.checked) {
+          try {
+            localStorage.setItem('pms_pop_status', '1');
+          } catch(e) {}
+          document.cookie = "pop_status=1; path=/; max-age=" + (24 * 3600);
+        }
+      }
+
+      $(document).ready(function(){
+        var isHidden = false;
+        try {
+          if (localStorage.getItem('pms_pop_status') === '1') isHidden = true;
+        } catch(e) {}
+        if (document.cookie.indexOf('pop_status=1') !== -1) {
+          isHidden = true;
+        }
+
+        if (!isHidden) {
+          setTimeout(function () { 
+            $("#gettrial").modal('show'); 
+          }, 800);
+        }
+
+        $('#gettrial').on('hide.bs.modal', function() {
+          handlePmsPopupClose();
+        });
+
+        // Keyboard navigation (kiri/kanan)
+        $(document).keydown(function(e) {
+          if ($('#gettrial').hasClass('show') || $('#gettrial').is(':visible')) {
+            if (e.keyCode === 37) pmsPrevPopup();
+            else if (e.keyCode === 39) pmsNextPopup();
+          }
+        });
+      });
     </script>
     <?php }} ?>
 	
