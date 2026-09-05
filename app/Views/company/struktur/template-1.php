@@ -354,7 +354,7 @@ foreach ($tree as $root) {
         z-index: 1;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 991px) {
         .pms-classic-card {
             width: 210px;
             min-height: 135px;

@@ -176,9 +176,9 @@
         border-radius: 14px;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 991px) {
         #pms-innerblock > .container {
-            padding: 24px 12px 36px !important;
+            padding: 24px 14px 36px !important;
             margin-top: -40px !important;
             border-radius: 12px !important;
         }

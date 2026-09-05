@@ -286,7 +286,7 @@ if (!empty($tierOthers)) {
         color: #00828a;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 991px) {
         .pms-grid-cols-2,
         .pms-grid-cols-3 {
             grid-template-columns: 1fr;

@@ -267,7 +267,7 @@ function render_indented_list_node(array $node, int $depth, bool $isIndo, string
         border-color: #00ADB5;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 991px) {
         .pms-list-nested {
             padding-left: 14px;
         }

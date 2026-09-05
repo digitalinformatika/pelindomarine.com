@@ -738,7 +738,7 @@
         background: #ffffff;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 991px) {
         .pms-profile-sidebar {
             margin-bottom: 30px;
             position: static;

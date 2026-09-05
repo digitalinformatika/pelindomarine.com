@@ -777,7 +777,7 @@ if (! function_exists('render_officer_photo')) {
         }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 991px) {
         .pms-tree-viewport {
             overflow-x: auto !important;
             -webkit-overflow-scrolling: touch !important;
