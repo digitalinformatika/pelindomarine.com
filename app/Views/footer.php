@@ -222,25 +222,31 @@
 	?>
 	<!-- Maritime Submarine Welcome Screen Modal -->
 	<style>
-		/* Override Bootstrap's solid dark backdrop so the website stays visible */
-		body.modal-open .modal-backdrop {
-			opacity: 0 !important;
-			background-color: transparent !important;
-			pointer-events: none !important;
+		/* Prevent layout shift caused by Bootstrap modal scrollbar padding */
+		body.modal-open {
+			padding-right: 0 !important;
+			padding-left: 0 !important;
+			overflow: hidden !important;
 		}
 
-		/* Modern Oceanic Glassmorphism Backdrop - Background Website Tetap Kelihatan */
+		/* Oceanic glassmorphism modal backdrop */
 		#gettrial.modal {
 			background: radial-gradient(circle at 50% 40%, rgba(10, 30, 56, 0.32) 0%, rgba(3, 10, 22, 0.52) 100%) !important;
 			backdrop-filter: blur(5px) saturate(135%);
 			-webkit-backdrop-filter: blur(5px) saturate(135%);
 			padding-left: 0 !important;
+			padding-right: 0 !important;
+			margin: 0 !important;
 			transition: background 0.3s ease;
 		}
 
 		#gettrial .modal-dialog {
-			max-width: 820px;
-			margin: 2rem auto;
+			max-width: fit-content;
+			width: auto;
+			margin: 1.5rem auto !important;
+			display: flex !important;
+			align-items: center !important;
+			justify-content: center !important;
 			transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 		}
 
@@ -254,8 +260,11 @@
 			opacity: 1;
 		}
 
-		/* Floating Glass Card with Marine Glow & Crisp Border */
+		/* Floating glass card with maritime glow, adaptive to portrait & landscape */
 		.pms-submarine-card {
+			width: fit-content;
+			max-width: min(860px, 92vw);
+			margin: 0 auto;
 			background: rgba(11, 28, 51, 0.85) !important;
 			backdrop-filter: blur(20px) saturate(160%) !important;
 			-webkit-backdrop-filter: blur(20px) saturate(160%) !important;
@@ -309,7 +318,7 @@
 			position: relative;
 			overflow: hidden;
 			width: 100%;
-			min-height: 220px;
+			min-height: 200px;
 			background: transparent;
 		}
 
@@ -332,24 +341,23 @@
 		.pms-popup-img-wrap {
 			position: relative;
 			display: block;
-			max-height: 72vh;
+			max-height: 78vh;
 			overflow: hidden;
 			background: transparent;
 			text-decoration: none;
 		}
 
 		.pms-popup-img-wrap img {
-			max-height: 72vh;
+			max-height: 78vh;
 			width: auto;
 			max-width: 100%;
 			margin: 0 auto;
 			display: block;
 			object-fit: contain;
-			transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 		}
 
 		.pms-popup-img-wrap:hover img {
-			transform: scale(1.015);
+			transform: none !important;
 		}
 
 		.pms-popup-cta-badge {
@@ -380,38 +388,188 @@
 			box-shadow: 0 6px 22px rgba(0, 173, 181, 0.7);
 		}
 
+		/* Floating navigation arrows without background or borders */
+		.pms-popup-nav-btn,
+		.pms-popup-nav-btn:hover,
+		.pms-popup-nav-btn:focus,
+		.pms-popup-nav-btn:focus-visible,
+		.pms-popup-nav-btn:active {
+			background: transparent !important;
+			background-color: transparent !important;
+			border: 0 !important;
+			border-width: 0 !important;
+			outline: none !important;
+			box-shadow: none !important;
+			-webkit-appearance: none !important;
+			-moz-appearance: none !important;
+			appearance: none !important;
+			-webkit-tap-highlight-color: transparent !important;
+		}
+
 		.pms-popup-nav-btn {
 			position: absolute;
 			top: 50%;
-			transform: translateY(-50%);
-			width: 44px;
-			height: 44px;
-			border-radius: 50%;
-			background: rgba(6, 18, 34, 0.75);
-			border: 1px solid rgba(0, 173, 181, 0.4);
-			backdrop-filter: blur(8px);
-			-webkit-backdrop-filter: blur(8px);
-			color: #00ADB5;
+			width: 46px;
+			height: 72px;
+			color: rgba(255, 255, 255, 0.85);
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			cursor: pointer;
-			z-index: 20;
-			transition: all 0.25s ease;
-			outline: none;
+			z-index: 25;
 			padding: 0;
-			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+			margin: 0;
+			opacity: 0;
+			pointer-events: none;
+			user-select: none;
+			-webkit-user-select: none;
+			filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8));
+			transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease, filter 0.25s ease;
 		}
 
+		.pms-popup-nav-prev {
+			left: 8px;
+			transform: translateY(-50%) translateX(-8px);
+		}
+
+		.pms-popup-nav-next {
+			right: 8px;
+			transform: translateY(-50%) translateX(8px);
+		}
+
+		/* Reveal arrows smoothly on card hover (desktop) */
+		.pms-submarine-card:hover .pms-popup-nav-btn {
+			opacity: 0.7;
+			pointer-events: auto;
+			transform: translateY(-50%) translateX(0);
+		}
+
+		/* Glow active neon cyan on arrow hover */
 		.pms-popup-nav-btn:hover {
-			background: #00ADB5;
-			color: #061222;
-			transform: translateY(-50%) scale(1.1);
-			box-shadow: 0 0 18px rgba(0, 173, 181, 0.8);
+			opacity: 1 !important;
+			color: #00ADB5 !important;
+			transform: translateY(-50%) scale(1.22) !important;
+			filter: drop-shadow(0 0 10px #00ADB5) drop-shadow(0 0 22px rgba(0, 173, 181, 0.9)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.9)) !important;
 		}
 
-		.pms-popup-nav-prev { left: 14px; }
-		.pms-popup-nav-next { right: 14px; }
+		.pms-popup-nav-btn:active {
+			transform: translateY(-50%) scale(1.08) !important;
+		}
+
+		/* Mobile & tablet responsive layout */
+		@media (max-width: 768px) {
+			#gettrial.modal {
+				padding-left: 12px !important;
+				padding-right: 12px !important;
+			}
+
+			#gettrial .modal-dialog {
+				width: 100% !important;
+				max-width: 360px !important;
+				margin: auto !important;
+				min-height: calc(100% - 1.5rem) !important;
+				display: flex !important;
+				align-items: center !important;
+				justify-content: center !important;
+			}
+
+			.pms-submarine-card {
+				width: 100% !important;
+				max-width: 100% !important;
+				border-radius: 16px !important;
+				box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(0, 173, 181, 0.25) !important;
+			}
+
+			.pms-popup-slider-container {
+				min-height: 160px !important;
+				width: 100%;
+			}
+
+			.pms-popup-img-wrap {
+				max-height: 60vh !important;
+				width: 100% !important;
+				display: flex !important;
+				align-items: center !important;
+				justify-content: center !important;
+			}
+
+			.pms-popup-img-wrap img {
+				width: 100% !important;
+				height: auto !important;
+				max-height: 60vh !important;
+				object-fit: contain !important;
+				display: block !important;
+			}
+
+			.pms-submarine-close-btn {
+				top: 8px !important;
+				right: 8px !important;
+				width: 32px !important;
+				height: 32px !important;
+				background: rgba(11, 28, 51, 0.85) !important;
+			}
+
+			.pms-submarine-close-btn svg {
+				width: 14px !important;
+				height: 14px !important;
+			}
+
+			/* Mobile nav arrow positioning */
+			.pms-popup-nav-btn {
+				opacity: 0.9 !important;
+				pointer-events: auto !important;
+				transform: translateY(-50%) !important;
+				width: 36px !important;
+				height: 52px !important;
+			}
+
+			.pms-popup-nav-prev {
+				left: 4px !important;
+			}
+
+			.pms-popup-nav-next {
+				right: 4px !important;
+			}
+
+			.pms-popup-nav-btn svg {
+				width: 20px !important;
+				height: 28px !important;
+			}
+
+			.pms-submarine-footer {
+				padding: 10px 14px !important;
+				gap: 8px !important;
+				flex-wrap: nowrap !important;
+			}
+
+			.pms-submarine-footer label {
+				font-size: 11px !important;
+				white-space: nowrap !important;
+				overflow: hidden !important;
+				text-overflow: ellipsis !important;
+			}
+
+			.pms-submarine-footer label span {
+				font-size: 11px !important;
+			}
+
+			.pms-submarine-dot {
+				width: 6px !important;
+				height: 6px !important;
+			}
+
+			.pms-submarine-dot.active {
+				width: 16px !important;
+			}
+		}
+
+		@media (min-width: 769px) and (hover: none) {
+			.pms-popup-nav-btn {
+				opacity: 0.85 !important;
+				pointer-events: auto !important;
+				transform: translateY(-50%) translateX(0) !important;
+			}
+		}
 
 		.pms-submarine-footer {
 			display: flex;
@@ -490,17 +648,17 @@
 					<?php } ?>
 
 					<?php if ($popupCount > 1) { ?>
-						<!-- Nav Arrows -->
-						<button type="button" class="pms-popup-nav-btn pms-popup-nav-prev" onclick="pmsPrevPopup();" aria-label="Previous">
-							<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<!-- Floating Navigation Arrows -->
+						<div role="button" tabindex="0" class="pms-popup-nav-btn pms-popup-nav-prev" onclick="pmsPrevPopup();" onkeydown="if(event.key==='Enter'||event.key===' '){pmsPrevPopup();event.preventDefault();}" aria-label="Previous">
+							<svg width="24" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
 								<polyline points="15 18 9 12 15 6"></polyline>
 							</svg>
-						</button>
-						<button type="button" class="pms-popup-nav-btn pms-popup-nav-next" onclick="pmsNextPopup();" aria-label="Next">
-							<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						</div>
+						<div role="button" tabindex="0" class="pms-popup-nav-btn pms-popup-nav-next" onclick="pmsNextPopup();" onkeydown="if(event.key==='Enter'||event.key===' '){pmsNextPopup();event.preventDefault();}" aria-label="Next">
+							<svg width="24" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
 								<polyline points="9 18 15 12 9 6"></polyline>
 							</svg>
-						</button>
+						</div>
 					<?php } ?>
 				</div>
 
@@ -708,7 +866,7 @@
           handlePmsPopupClose();
         });
 
-        // Keyboard navigation (kiri/kanan)
+        // Keyboard arrow navigation
         $(document).keydown(function(e) {
           if ($('#gettrial').hasClass('show') || $('#gettrial').is(':visible')) {
             if (e.keyCode === 37) pmsPrevPopup();
