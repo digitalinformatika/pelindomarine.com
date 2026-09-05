@@ -222,40 +222,69 @@
 	?>
 	<!-- Maritime Submarine Welcome Screen Modal -->
 	<style>
-		#gettrial.modal {
-			background: rgba(4, 13, 26, 0.88);
-			backdrop-filter: blur(8px);
-			-webkit-backdrop-filter: blur(8px);
-			padding-left: 0 !important;
+		/* Override Bootstrap's solid dark backdrop so the website stays visible */
+		body.modal-open .modal-backdrop {
+			opacity: 0 !important;
+			background-color: transparent !important;
+			pointer-events: none !important;
 		}
+
+		/* Modern Oceanic Glassmorphism Backdrop - Background Website Tetap Kelihatan */
+		#gettrial.modal {
+			background: radial-gradient(circle at 50% 40%, rgba(10, 30, 56, 0.32) 0%, rgba(3, 10, 22, 0.52) 100%) !important;
+			backdrop-filter: blur(5px) saturate(135%);
+			-webkit-backdrop-filter: blur(5px) saturate(135%);
+			padding-left: 0 !important;
+			transition: background 0.3s ease;
+		}
+
 		#gettrial .modal-dialog {
 			max-width: 820px;
 			margin: 2rem auto;
+			transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 		}
+
+		#gettrial.modal.fade .modal-dialog {
+			transform: scale(0.92) translateY(20px);
+			opacity: 0;
+		}
+
+		#gettrial.modal.show .modal-dialog {
+			transform: scale(1) translateY(0);
+			opacity: 1;
+		}
+
+		/* Floating Glass Card with Marine Glow & Crisp Border */
 		.pms-submarine-card {
-			background: linear-gradient(165deg, #0b1c33 0%, #061222 100%) !important;
-			border: 1px solid rgba(0, 173, 181, 0.4) !important;
-			border-radius: 20px !important;
-			box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 173, 181, 0.22) !important;
+			background: rgba(11, 28, 51, 0.85) !important;
+			backdrop-filter: blur(20px) saturate(160%) !important;
+			-webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+			border: 1px solid rgba(0, 173, 181, 0.45) !important;
+			border-radius: 22px !important;
+			box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.65), 0 0 45px rgba(0, 173, 181, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
 			position: relative;
 			overflow: hidden;
 			color: #e2e8f0;
 			padding: 0;
 		}
+
 		.pms-submarine-sonar-bar {
-			height: 3px;
+			height: 3.5px;
 			width: 100%;
 			background: linear-gradient(90deg, #00ADB5 0%, #38ef7d 50%, #00ADB5 100%);
-			box-shadow: 0 0 12px rgba(0, 173, 181, 0.8);
+			box-shadow: 0 0 14px rgba(0, 173, 181, 0.9), 0 0 28px rgba(56, 239, 125, 0.4);
 		}
+
 		.pms-submarine-close-btn {
 			position: absolute;
 			top: 14px;
 			right: 14px;
-			width: 38px;
-			height: 38px;
+			width: 40px;
+			height: 40px;
 			border-radius: 50%;
-			background: rgba(11, 28, 51, 0.9);
+			background: rgba(11, 28, 51, 0.75);
+			backdrop-filter: blur(10px);
+			-webkit-backdrop-filter: blur(10px);
 			border: 1px solid rgba(0, 173, 181, 0.5);
 			color: #00ADB5;
 			display: flex;
@@ -263,44 +292,52 @@
 			justify-content: center;
 			cursor: pointer;
 			z-index: 30;
-			transition: all 0.25s ease;
+			transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 			outline: none;
 			padding: 0;
+			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 		}
+
 		.pms-submarine-close-btn:hover {
 			background: #00ADB5;
 			color: #061222;
-			transform: rotate(90deg) scale(1.08);
-			box-shadow: 0 0 16px rgba(0, 173, 181, 0.7);
+			transform: rotate(90deg) scale(1.1);
+			box-shadow: 0 0 20px rgba(0, 173, 181, 0.8);
 		}
+
 		.pms-popup-slider-container {
 			position: relative;
 			overflow: hidden;
 			width: 100%;
 			min-height: 220px;
-			background: #040a14;
+			background: transparent;
 		}
+
 		.pms-popup-slide-item {
 			display: none;
 			width: 100%;
 			text-align: center;
 			animation: pmsFadeIn 0.4s ease-out forwards;
 		}
+
 		.pms-popup-slide-item.active {
 			display: block;
 		}
+
 		@keyframes pmsFadeIn {
 			from { opacity: 0; transform: scale(0.985); }
 			to { opacity: 1; transform: scale(1); }
 		}
+
 		.pms-popup-img-wrap {
 			position: relative;
 			display: block;
 			max-height: 72vh;
 			overflow: hidden;
-			background: #02070f;
+			background: transparent;
 			text-decoration: none;
 		}
+
 		.pms-popup-img-wrap img {
 			max-height: 72vh;
 			width: auto;
@@ -310,35 +347,39 @@
 			object-fit: contain;
 			transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 		}
+
 		.pms-popup-img-wrap:hover img {
 			transform: scale(1.015);
 		}
+
 		.pms-popup-cta-badge {
 			position: absolute;
 			bottom: 14px;
 			right: 16px;
-			background: rgba(11, 28, 51, 0.9);
+			background: rgba(11, 28, 51, 0.85);
 			border: 1px solid rgba(0, 173, 181, 0.6);
-			backdrop-filter: blur(6px);
-			-webkit-backdrop-filter: blur(6px);
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
 			color: #00e1d9;
-			padding: 7px 16px;
+			padding: 7px 18px;
 			border-radius: 30px;
-			font-size: 12px;
+			font-size: 12.5px;
 			font-weight: 600;
 			letter-spacing: 0.5px;
 			display: inline-flex;
 			align-items: center;
 			gap: 6px;
-			box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+			box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
 			transition: all 0.25s ease;
 		}
+
 		.pms-popup-img-wrap:hover .pms-popup-cta-badge {
 			background: #00ADB5;
 			color: #040d1a;
 			transform: translateY(-2px);
-			box-shadow: 0 6px 20px rgba(0, 173, 181, 0.6);
+			box-shadow: 0 6px 22px rgba(0, 173, 181, 0.7);
 		}
+
 		.pms-popup-nav-btn {
 			position: absolute;
 			top: 50%;
@@ -346,8 +387,10 @@
 			width: 44px;
 			height: 44px;
 			border-radius: 50%;
-			background: rgba(6, 18, 34, 0.85);
+			background: rgba(6, 18, 34, 0.75);
 			border: 1px solid rgba(0, 173, 181, 0.4);
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
 			color: #00ADB5;
 			display: flex;
 			align-items: center;
@@ -357,31 +400,39 @@
 			transition: all 0.25s ease;
 			outline: none;
 			padding: 0;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
 		}
+
 		.pms-popup-nav-btn:hover {
 			background: #00ADB5;
 			color: #061222;
 			transform: translateY(-50%) scale(1.1);
-			box-shadow: 0 0 16px rgba(0, 173, 181, 0.7);
+			box-shadow: 0 0 18px rgba(0, 173, 181, 0.8);
 		}
+
 		.pms-popup-nav-prev { left: 14px; }
 		.pms-popup-nav-next { right: 14px; }
+
 		.pms-submarine-footer {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
 			flex-wrap: wrap;
 			gap: 12px;
-			padding: 12px 20px;
-			background: rgba(4, 13, 26, 0.95);
-			border-top: 1px solid rgba(0, 173, 181, 0.2);
+			padding: 13px 22px;
+			background: rgba(6, 18, 34, 0.82);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			border-top: 1px solid rgba(0, 173, 181, 0.25);
 			font-size: 13px;
 		}
+
 		.pms-submarine-dots {
 			display: flex;
 			align-items: center;
 			gap: 8px;
 		}
+
 		.pms-submarine-dot {
 			width: 8px;
 			height: 8px;
@@ -390,6 +441,7 @@
 			cursor: pointer;
 			transition: all 0.3s ease;
 		}
+
 		.pms-submarine-dot.active {
 			width: 22px;
 			background: #00ADB5;
@@ -397,7 +449,7 @@
 		}
 	</style>
 
-	<div class="modal fade" id="gettrial" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+	<div class="modal fade" id="gettrial" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="true">
 		<div class="modal-dialog modal-dialog-centered" role="document">
 			<div class="modal-content pms-submarine-card">
 				<!-- Glowing Sonar Trim -->
