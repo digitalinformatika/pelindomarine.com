@@ -229,15 +229,24 @@
 			overflow: hidden !important;
 		}
 
-		/* Oceanic glassmorphism modal backdrop */
+		/* Transparent modal backdrop with subtle thin blur (opacity ~0, site remains visible) */
+		.modal-backdrop {
+			background-color: transparent !important;
+			opacity: 0 !important;
+		}
+
+		.modal-backdrop.show {
+			opacity: 0 !important;
+		}
+
 		#gettrial.modal {
-			background: radial-gradient(circle at 50% 40%, rgba(10, 30, 56, 0.32) 0%, rgba(3, 10, 22, 0.52) 100%) !important;
-			backdrop-filter: blur(5px) saturate(135%);
-			-webkit-backdrop-filter: blur(5px) saturate(135%);
+			background: rgba(255, 255, 255, 0.03) !important;
+			backdrop-filter: blur(5px) !important;
+			-webkit-backdrop-filter: blur(5px) !important;
 			padding-left: 0 !important;
 			padding-right: 0 !important;
 			margin: 0 !important;
-			transition: background 0.3s ease;
+			transition: backdrop-filter 0.3s ease;
 		}
 
 		#gettrial .modal-dialog {
@@ -260,42 +269,33 @@
 			opacity: 1;
 		}
 
-		/* Floating glass card with maritime glow, adaptive to portrait & landscape */
+		/* Floating white card with modern crisp styling, adaptive to portrait & landscape */
 		.pms-submarine-card {
 			width: fit-content;
 			max-width: min(860px, 92vw);
 			margin: 0 auto;
-			background: rgba(11, 28, 51, 0.85) !important;
-			backdrop-filter: blur(20px) saturate(160%) !important;
-			-webkit-backdrop-filter: blur(20px) saturate(160%) !important;
-			border: 1px solid rgba(0, 173, 181, 0.45) !important;
+			background: #ffffff !important;
+			border: 1px solid rgba(0, 0, 0, 0.08) !important;
 			border-radius: 22px !important;
-			box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.65), 0 0 45px rgba(0, 173, 181, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+			box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.18), 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
 			position: relative;
 			overflow: hidden;
-			color: #e2e8f0;
+			color: #0f172a !important;
 			padding: 0;
-		}
-
-		.pms-submarine-sonar-bar {
-			height: 3.5px;
-			width: 100%;
-			background: linear-gradient(90deg, #00ADB5 0%, #38ef7d 50%, #00ADB5 100%);
-			box-shadow: 0 0 14px rgba(0, 173, 181, 0.9), 0 0 28px rgba(56, 239, 125, 0.4);
 		}
 
 		.pms-submarine-close-btn {
 			position: absolute;
 			top: 14px;
 			right: 14px;
-			width: 40px;
-			height: 40px;
+			width: 38px;
+			height: 38px;
 			border-radius: 50%;
-			background: rgba(11, 28, 51, 0.75);
-			backdrop-filter: blur(10px);
-			-webkit-backdrop-filter: blur(10px);
-			border: 1px solid rgba(0, 173, 181, 0.5);
-			color: #00ADB5;
+			background: rgba(255, 255, 255, 0.92) !important;
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
+			border: 1px solid rgba(0, 0, 0, 0.12) !important;
+			color: #475569 !important;
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -304,14 +304,14 @@
 			transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 			outline: none;
 			padding: 0;
-			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15) !important;
 		}
 
 		.pms-submarine-close-btn:hover {
-			background: #00ADB5;
-			color: #061222;
+			background: #ffffff !important;
+			color: #00ADB5 !important;
 			transform: rotate(90deg) scale(1.1);
-			box-shadow: 0 0 20px rgba(0, 173, 181, 0.8);
+			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
 		}
 
 		.pms-popup-slider-container {
@@ -386,6 +386,59 @@
 			color: #040d1a;
 			transform: translateY(-2px);
 			box-shadow: 0 6px 22px rgba(0, 173, 181, 0.7);
+		}
+
+		/* Optional caption box for title & description */
+		.pms-popup-caption-box {
+			padding: 16px 24px;
+			background: #ffffff;
+			border-top: 1px solid #f1f5f9;
+			text-align: left;
+			box-sizing: border-box;
+		}
+
+		.pms-popup-caption-box.is-link {
+			display: block;
+			text-decoration: none !important;
+			transition: background 0.2s ease;
+		}
+
+		.pms-popup-caption-box.is-link:hover {
+			background: #f8fafc;
+		}
+
+		.pms-popup-caption-title {
+			color: #0f172a !important;
+			font-size: 16px;
+			font-weight: 700;
+			line-height: 1.35;
+			letter-spacing: 0.2px;
+			margin: 0 0 6px 0;
+			transition: color 0.2s ease;
+		}
+
+		.pms-popup-caption-box.is-link:hover .pms-popup-caption-title {
+			color: #00ADB5 !important;
+		}
+
+		.pms-popup-caption-desc {
+			color: #334155 !important;
+			font-size: 13px;
+			line-height: 1.6;
+			margin: 0;
+			max-height: 130px;
+			overflow-y: auto;
+			scrollbar-width: thin;
+			scrollbar-color: #cbd5e1 transparent;
+		}
+
+		.pms-popup-caption-desc::-webkit-scrollbar {
+			width: 4px;
+		}
+
+		.pms-popup-caption-desc::-webkit-scrollbar-thumb {
+			background: #cbd5e1;
+			border-radius: 4px;
 		}
 
 		/* Floating navigation arrows without background or borders */
@@ -477,7 +530,7 @@
 				width: 100% !important;
 				max-width: 100% !important;
 				border-radius: 16px !important;
-				box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(0, 173, 181, 0.25) !important;
+				box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25) !important;
 			}
 
 			.pms-popup-slider-container {
@@ -506,7 +559,10 @@
 				right: 8px !important;
 				width: 32px !important;
 				height: 32px !important;
-				background: rgba(11, 28, 51, 0.85) !important;
+				background: rgba(255, 255, 255, 0.95) !important;
+				border: 1px solid rgba(0, 0, 0, 0.12) !important;
+				color: #475569 !important;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
 			}
 
 			.pms-submarine-close-btn svg {
@@ -534,6 +590,21 @@
 			.pms-popup-nav-btn svg {
 				width: 20px !important;
 				height: 28px !important;
+			}
+
+			.pms-popup-caption-box {
+				padding: 10px 14px !important;
+			}
+
+			.pms-popup-caption-title {
+				font-size: 13.5px !important;
+				margin-bottom: 3px !important;
+			}
+
+			.pms-popup-caption-desc {
+				font-size: 11.5px !important;
+				line-height: 1.45 !important;
+				max-height: 90px !important;
 			}
 
 			.pms-submarine-footer {
@@ -590,10 +661,8 @@
 			flex-wrap: wrap;
 			gap: 12px;
 			padding: 12px 22px;
-			background: rgba(6, 18, 34, 0.82);
-			backdrop-filter: blur(12px);
-			-webkit-backdrop-filter: blur(12px);
-			border-top: 1px solid rgba(0, 173, 181, 0.25);
+			background: #f8fafc;
+			border-top: 1px solid #e2e8f0;
 			font-size: 13px;
 		}
 
@@ -632,8 +701,8 @@
 			height: 16px !important;
 			flex-shrink: 0 !important;
 			border-radius: 4.5px !important;
-			background: rgba(8, 22, 40, 0.75);
-			border: 1.6px solid rgba(0, 173, 181, 0.45);
+			background: #ffffff;
+			border: 1.6px solid #94a3b8;
 			display: inline-flex !important;
 			align-items: center !important;
 			justify-content: center !important;
@@ -661,13 +730,13 @@
 		.pms-custom-chk-wrap:hover .pms-chk-box {
 			border-color: #00ADB5;
 			transform: scale(1.06) !important;
-			box-shadow: 0 0 8px rgba(0, 173, 181, 0.4);
+			box-shadow: 0 0 8px rgba(0, 173, 181, 0.3);
 		}
 
 		.pms-real-chk:checked + .pms-chk-box {
 			background: #00ADB5;
 			border-color: #00ADB5;
-			box-shadow: 0 0 12px rgba(0, 173, 181, 0.75), 0 2px 6px rgba(0, 0, 0, 0.35);
+			box-shadow: 0 0 10px rgba(0, 173, 181, 0.6), 0 1px 3px rgba(0, 0, 0, 0.15);
 			transform: none !important;
 			animation: pmsBoxPop 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
 		}
@@ -682,7 +751,7 @@
 		}
 
 		.pms-chk-text {
-			color: #94a3b8;
+			color: #334155 !important;
 			font-size: 13px !important;
 			font-weight: 500;
 			letter-spacing: 0.15px;
@@ -695,13 +764,13 @@
 		}
 
 		.pms-custom-chk-wrap:hover .pms-chk-text {
-			color: #e2e8f0;
+			color: #0f172a !important;
 		}
 
 		.pms-real-chk:checked ~ .pms-chk-text {
-			color: #00ADB5;
+			color: #0f172a !important;
 			font-weight: 600;
-			text-shadow: 0 0 10px rgba(0, 173, 181, 0.35);
+			text-shadow: none !important;
 		}
 
 		@keyframes pmsCheckDraw {
@@ -748,7 +817,7 @@
 			width: 8px;
 			height: 8px;
 			border-radius: 4px;
-			background: rgba(255, 255, 255, 0.25);
+			background: #cbd5e1;
 			cursor: pointer;
 			transition: all 0.3s ease;
 		}
@@ -756,16 +825,13 @@
 		.pms-submarine-dot.active {
 			width: 22px;
 			background: #00ADB5;
-			box-shadow: 0 0 8px #00ADB5;
+			box-shadow: 0 0 8px rgba(0, 173, 181, 0.6);
 		}
 	</style>
 
 	<div class="modal fade" id="gettrial" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="true">
 		<div class="modal-dialog modal-dialog-centered" role="document">
 			<div class="modal-content pms-submarine-card">
-				<!-- Glowing Sonar Trim -->
-				<div class="pms-submarine-sonar-bar"></div>
-
 				<!-- Floating Close Button -->
 				<button type="button" class="pms-submarine-close-btn" data-dismiss="modal" aria-label="Close" onclick="handlePmsPopupClose();">
 					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -779,11 +845,21 @@
 					<?php foreach ($activeWelcomePopups as $idx => $popup) { 
 						$hasUrl = !empty($popup['url']);
 						$targetBlank = !empty($popup['is_new_tab']) ? '_blank' : '_self';
+
+						// Resolve localized title & description with fallback
+						if ($isIndo) {
+							$popTitle = !empty($popup['judul']) ? $popup['judul'] : (!empty($popup['title']) ? $popup['title'] : '');
+							$popDesc  = !empty($popup['deskripsi']) ? $popup['deskripsi'] : (!empty($popup['descs']) ? $popup['descs'] : '');
+						} else {
+							$popTitle = !empty($popup['title']) ? $popup['title'] : (!empty($popup['judul']) ? $popup['judul'] : '');
+							$popDesc  = !empty($popup['descs']) ? $popup['descs'] : (!empty($popup['deskripsi']) ? $popup['deskripsi'] : '');
+						}
+						$hasCaption = (!empty($popTitle) || !empty($popDesc));
 					?>
 						<div class="pms-popup-slide-item <?php echo $idx === 0 ? 'active' : ''; ?>" data-index="<?php echo $idx; ?>">
 							<?php if ($hasUrl) { ?>
 								<a href="<?php echo esc($popup['url'], 'attr'); ?>" target="<?php echo $targetBlank; ?>" rel="noopener" class="pms-popup-img-wrap">
-									<img src="<?php echo $popup['resolved_img']; ?>" alt="Pelindo Marines Welcome" class="img-fluid">
+									<img src="<?php echo $popup['resolved_img']; ?>" alt="<?php echo esc($popTitle ?: 'Pelindo Marines Welcome'); ?>" class="img-fluid">
 									<span class="pms-popup-cta-badge">
 										<?php echo $txtVisit; ?>
 										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -794,8 +870,30 @@
 								</a>
 							<?php } else { ?>
 								<div class="pms-popup-img-wrap">
-									<img src="<?php echo $popup['resolved_img']; ?>" alt="Pelindo Marines Welcome" class="img-fluid">
+									<img src="<?php echo $popup['resolved_img']; ?>" alt="<?php echo esc($popTitle ?: 'Pelindo Marines Welcome'); ?>" class="img-fluid">
 								</div>
+							<?php } ?>
+
+							<?php if ($hasCaption) { ?>
+								<?php if ($hasUrl) { ?>
+									<a href="<?php echo esc($popup['url'], 'attr'); ?>" target="<?php echo $targetBlank; ?>" rel="noopener" class="pms-popup-caption-box is-link">
+										<?php if (!empty($popTitle)) { ?>
+											<h4 class="pms-popup-caption-title"><?php echo esc($popTitle); ?></h4>
+										<?php } ?>
+										<?php if (!empty($popDesc)) { ?>
+											<div class="pms-popup-caption-desc"><?php echo nl2br(esc($popDesc)); ?></div>
+										<?php } ?>
+									</a>
+								<?php } else { ?>
+									<div class="pms-popup-caption-box">
+										<?php if (!empty($popTitle)) { ?>
+											<h4 class="pms-popup-caption-title"><?php echo esc($popTitle); ?></h4>
+										<?php } ?>
+										<?php if (!empty($popDesc)) { ?>
+											<div class="pms-popup-caption-desc"><?php echo nl2br(esc($popDesc)); ?></div>
+										<?php } ?>
+									</div>
+								<?php } ?>
 							<?php } ?>
 						</div>
 					<?php } ?>
