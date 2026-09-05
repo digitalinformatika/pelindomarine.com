@@ -9,12 +9,15 @@ $routes->get('/', 'Home::index');
 
 // Company
 $routes->get('company/about-us', 'Home::aboutUs');
+$routes->get('company/organization-structure', 'Home::organizationStructure');
+$routes->get('company/struktur-organisasi', 'Home::organizationStructure');
+$routes->get('company/profile/(:any)', 'Home::profiles/$1');
 $routes->get('company/regulatory', 'Home::regulatory');
 $routes->get('company/news', 'Home::news');
 $routes->get('company/news/(:any)', 'Home::news/$1');
 $routes->get('company/readnews/(:any)', 'Home::readnews/$1');
 $routes->get('company/careers', 'Home::careers');
-$routes->get('profile/(:any)', 'Home::profiles');
+$routes->get('profile/(:any)', 'Home::profiles/$1');
 $routes->get('line-of-business/(:any)', 'Home::lineOfBusiness');
 
 // Services

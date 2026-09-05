@@ -124,6 +124,7 @@
 						<ul class="dropdown-menu animate slideIn">
 							<div class="boxed-dropmenu">
 								<li class="submenu-mob"><a href="company/about-us">About Us</a></li>
+								<li class="submenu-mob"><a href="company/organization-structure">Organization Structure</a></li>
 								<li class="submenu-mob"><a href="company/regulatory">Regulatory Frameworks</a></li>
 								<li class="submenu-mob"><a href="company/news">News</a></li>
 								<li class="submenu-mob"><a href="company/careers">Careers</a></li>
@@ -183,6 +184,7 @@
 						<ul class="dropdown-menu animate slideIn">
 							<div class="boxed-dropmenu">
 								<li class="submenu-mob"><a href="company/about-us">Profil</a></li>
+								<li class="submenu-mob"><a href="company/organization-structure">Struktur Organisasi</a></li>
 								<li class="submenu-mob"><a href="company/regulatory">Regulasi Layanan</a></li>
 								<li class="submenu-mob"><a href="company/news">Berita</a></li>
 								<li class="submenu-mob"><a href="company/careers">Karir</a></li>

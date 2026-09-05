@@ -35,3 +35,73 @@ if (! function_exists('uri_segment')) {
         return $segments[$n - 1] ?? '';
     }
 }
+
+if (! function_exists('struktur_media_url')) {
+    /**
+     * Resolve media URL for organization structure photos and hero banners.
+     */
+    function struktur_media_url(?string $filename, string $defaultPlaceholder = ''): string
+    {
+        if ($filename === null || trim($filename) === '') {
+            return $defaultPlaceholder;
+        }
+
+        $filename = trim($filename);
+
+        if (str_starts_with($filename, 'http://') || str_starts_with($filename, 'https://')) {
+            return $filename;
+        }
+
+        // Check if file exists under uploads/struktur_organisasi/
+        if (is_file(FCPATH . 'uploads/struktur_organisasi/' . $filename)) {
+            return base_url('uploads/struktur_organisasi/' . $filename);
+        }
+
+        // Check general uploads folder
+        if (is_file(FCPATH . 'uploads/' . $filename)) {
+            return base_url('uploads/' . $filename);
+        }
+
+        // Check legacy upload folder
+        if (is_file(FCPATH . 'upload/' . $filename)) {
+            return base_url('upload/' . $filename);
+        }
+
+        // Local development: check if file was uploaded to CMS project uploads folder
+        $cmsPath = dirname(FCPATH, 2) . DIRECTORY_SEPARATOR . 'cms.pelindomarine.com' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'struktur_organisasi' . DIRECTORY_SEPARATOR . $filename;
+        if (is_file($cmsPath)) {
+            // Also copy to local uploads/struktur_organisasi so it is served by the main web server
+            $dest = FCPATH . 'uploads' . DIRECTORY_SEPARATOR . 'struktur_organisasi' . DIRECTORY_SEPARATOR . $filename;
+            $destDir = dirname($dest);
+            if (! is_dir($destDir)) {
+                @mkdir($destDir, 0775, true);
+            }
+            if (! is_file($dest)) {
+                @copy($cmsPath, $dest);
+            }
+            return base_url('uploads/struktur_organisasi/' . $filename);
+        }
+
+        return base_url('uploads/struktur_organisasi/' . $filename);
+    }
+}
+
+if (! function_exists('officer_slug')) {
+    /**
+     * Generate standard SEO friendly URL slug for an officer.
+     */
+    function officer_slug(array $officer): string
+    {
+        $name = !empty($officer['nama']) ? $officer['nama'] : (!empty($officer['NAMA']) ? $officer['NAMA'] : '');
+        if ($name !== '') {
+            return friendlyURL($name);
+        }
+        $jabatan = !empty($officer['jabatan']) ? $officer['jabatan'] : (!empty($officer['JABATAN']) ? $officer['JABATAN'] : '');
+        if ($jabatan !== '') {
+            return friendlyURL($jabatan);
+        }
+        $id = $officer['struktur_id'] ?? ($officer['STRUKTUR_ID'] ?? 'pejabat');
+        return 'pejabat-' . $id;
+    }
+}
+

@@ -35,7 +35,7 @@ abstract class BaseController extends Controller
      *
      * @var list<string>
      */
-    protected $helpers = ['url', 'form', 'cookie', 'site'];
+    protected $helpers = ['url', 'form', 'cookie', 'site', 'text'];
 
     protected Session $session;
     protected \Config\Pelindo $pelindo;

@@ -1,345 +1,858 @@
 <?php
-   //session language
-   $weblangs = session('weblang');
-   if (strval($weblangs) == "") $weblangs = "english";
-   
-   function reurl($string){
-        $string=str_replace("-"," ", $string);
-        $string=ucwords($string);
-        return $string;
+    $weblangs = session('weblang');
+    if (strval($weblangs) == '') $weblangs = 'english';
+    $isIndo = ($weblangs === 'indonesia');
+
+    // Resolve current officer details
+    $officerName = !empty($officer['NAMA']) ? $officer['NAMA'] : (!empty($officer['JABATAN']) ? $officer['JABATAN'] : 'Pejabat Pelindo Marine');
+    $officerJabatan = !empty($officer['JABATAN']) ? $officer['JABATAN'] : '';
+    $officerDesc = !empty($officer['DESCRIPTION']) ? $officer['DESCRIPTION'] : '';
+
+    // Hero banner configuration
+    $bannerImg = !empty($banner['GAMBAR']) ? struktur_media_url($banner['GAMBAR']) : base_url('upload/about-bgheader.jpg');
+    $heroTitle = $isIndo
+        ? (!empty($banner['JUDUL']) ? $banner['JUDUL'] : 'PROFIL PEJABAT')
+        : (!empty($banner['TITLE']) ? $banner['TITLE'] : 'EXECUTIVE PROFILE');
+    $heroSubtitle = $isIndo
+        ? (!empty($banner['SUB_JUDUL']) ? $banner['SUB_JUDUL'] : 'Struktur Organisasi')
+        : (!empty($banner['SUB_TITLE']) ? $banner['SUB_TITLE'] : 'Organization Structure');
+
+    // Legacy photo mappings for fallback
+    $legacyPhotos = [
+        'm-masyhud'            => 'board-m-masyhud_komut.png?ver=2',
+        'andrei'               => 'board-andrei.png',
+        'warsilan'             => 'board4.png?ver=1',
+        'elvin'                => 'board-dirkom-elvin.png',
+        'lia-indi-agustiana'   => 'board5.jpg',
+        'perbager'             => 'board-perbager.png',
+    ];
+
+    $curSlug = !empty($currentSlug) ? strtolower($currentSlug) : officer_slug($officer);
+    $profilSlug = !empty($template['SLUG']) ? trim($template['SLUG']) : 'profil-1';
+    $resolvedPhoto = '';
+    if (!empty($officer['FOTO'])) {
+        $resolvedPhoto = struktur_media_url($officer['FOTO']);
+    } elseif (isset($legacyPhotos[$curSlug])) {
+        $resolvedPhoto = base_url('upload/homepage/' . $legacyPhotos[$curSlug]);
     }
+
+    // Group all officers for sidebar
+    $komisarisList = [];
+    $direksiList = [];
+    foreach ($allOfficers as $row) {
+        if (empty($row['NAMA'])) continue;
+        $jabLower = strtolower($row['JABATAN'] ?? '');
+        if (str_contains($jabLower, 'komisaris') || str_contains($jabLower, 'commissioner')) {
+            $komisarisList[] = $row;
+        } else {
+            $direksiList[] = $row;
+        }
+    }
+
+    $txtBreadcrumbHome = 'Home';
+    $txtBreadcrumbParent = $isIndo ? 'Struktur Organisasi' : 'Organization Structure';
+    $txtBackToChart = $isIndo ? 'Kembali ke Bagan Organisasi' : 'Back to Org Chart';
+    $txtKomisarisTitle = $isIndo ? 'Dewan Komisaris' : 'Board of Commissioners';
+    $txtDireksiTitle = $isIndo ? 'Dewan Direksi' : 'Board of Directors';
 ?>
-<?php
-   $getprofile = uri_segment(2);
-   $photo = "";
-   if ($getprofile=="m-masyhud") $photo = "board-m-masyhud_komut.png?ver=2";
-   if ($getprofile=="andrei") $photo = "board-andrei.png";
-   if ($getprofile=="warsilan") $photo = "board4.png?ver=1";
-   if ($getprofile=="elvin") $photo = "board-dirkom-elvin.png";
-   if ($getprofile=="lia-indi-agustiana") $photo = "board5.jpg";
-   if ($getprofile=="perbager") $photo = "board-perbager.png";
-?>
+
+<!-- Hero Header -->
+<section id="pms-inner-header" style="background-image: url('<?= esc($bannerImg, 'attr') ?>'); background-size: cover; background-position: center;">
+    <div class="container">
+        <div class="row animate-box breadcumb-box">
+            <div class="col-md-6 col-xs-12">
+                <h5><?= esc($heroSubtitle) ?></h5>
+                <h2><?= esc($heroTitle) ?></h2>
+            </div>
+            <div class="col-md-6 col-xs-12 text-right">
+                <div class="breadcumbs">
+                    <a href="<?= base_url('/') ?>" class="text-light"><?= $txtBreadcrumbHome ?></a> / 
+                    <a href="<?= site_url('company/organization-structure') ?>" class="text-light"><?= $txtBreadcrumbParent ?></a> / 
+                    <b><span class="text-light"><?= esc($officerName) ?></span></b>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Content Block -->
+<section id="pms-innerblock">
+    <div class="container animate-box" style="background: #ffffff; margin-top: -80px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06); padding: 40px 25px 60px;">
+        <div class="row">
+            <!-- Back button bar -->
+            <div class="col-md-12 mb-4">
+                <a href="<?= site_url('company/organization-structure') ?>" class="pms-profile-back-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span><?= $txtBackToChart ?></span>
+                </a>
+            </div>
+
+            <!-- Left Column: Navigation Directory Sidebar -->
+            <div class="col-md-4 col-sm-5 col-xs-12">
+                <div class="pms-profile-sidebar">
+                    <!-- Dewan Komisaris Group -->
+                    <?php if (!empty($komisarisList)) : ?>
+                        <div class="pms-sidebar-group">
+                            <div class="pms-sidebar-group-title"><?= $txtKomisarisTitle ?></div>
+                            <ul class="pms-sidebar-nav">
+                                <?php foreach ($komisarisList as $item) : 
+                                    $itemSlug = officer_slug($item);
+                                    $isActive = ($itemSlug === $curSlug || (int)($item['STRUKTUR_ID'] ?? 0) === (int)($officer['STRUKTUR_ID'] ?? 0));
+                                ?>
+                                    <li>
+                                        <a href="<?= site_url('profile/' . $itemSlug) ?>" class="pms-sidebar-item <?= $isActive ? 'active' : '' ?>">
+                                            <span class="pms-sidebar-indicator"></span>
+                                            <div class="pms-sidebar-item-text">
+                                                <div class="pms-sidebar-item-name"><?= esc($item['NAMA'] ?? '-') ?></div>
+                                                <div class="pms-sidebar-item-role"><?= esc($item['JABATAN'] ?? '') ?></div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Dewan Direksi Group -->
+                    <?php if (!empty($direksiList)) : ?>
+                        <div class="pms-sidebar-group mt-4">
+                            <div class="pms-sidebar-group-title"><?= $txtDireksiTitle ?></div>
+                            <ul class="pms-sidebar-nav">
+                                <?php foreach ($direksiList as $item) : 
+                                    $itemSlug = officer_slug($item);
+                                    $isActive = ($itemSlug === $curSlug || (int)($item['STRUKTUR_ID'] ?? 0) === (int)($officer['STRUKTUR_ID'] ?? 0));
+                                ?>
+                                    <li>
+                                        <a href="<?= site_url('profile/' . $itemSlug) ?>" class="pms-sidebar-item <?= $isActive ? 'active' : '' ?>">
+                                            <span class="pms-sidebar-indicator"></span>
+                                            <div class="pms-sidebar-item-text">
+                                                <div class="pms-sidebar-item-name"><?= esc($item['NAMA'] ?? '-') ?></div>
+                                                <div class="pms-sidebar-item-role"><?= esc($item['JABATAN'] ?? '') ?></div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Right Column: Officer Profile Content -->
+            <div class="col-md-8 col-sm-7 col-xs-12">
+                <div class="pms-profile-content-card">
+                    <!-- Profile Header with Portrait -->
+                    <div class="pms-profile-main-header">
+                        <?php if ($resolvedPhoto !== '') : ?>
+                            <div class="pms-profile-photo-box">
+                                <img src="<?= esc($resolvedPhoto, 'attr') ?>" alt="<?= esc($officerName, 'attr') ?>" class="pms-profile-photo img-fluid">
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="pms-profile-identity">
+                            <span class="pms-profile-role-badge"><?= esc($officerJabatan) ?></span>
+                            <h2 class="pms-profile-fullname"><?= esc($officerName) ?></h2>
+                            <?php if (!empty($officerDesc)) : ?>
+                                <p class="pms-profile-lead-desc"><?= nl2br(esc($officerDesc)) ?></p>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Sections from DB (struktur_organisasi_profil) -->
+                    <div class="pms-profile-sections-wrap">
+                        <?php if (empty($sections)) : ?>
+                            <!-- Fallback / Empty State -->
+                            <div class="pms-profile-empty-hint">
+                                <p class="text-muted"><?= $isIndo ? 'Informasi detail profil pejabat ini dapat diperbarui melalui CMS.' : 'Detailed biographical sections for this officer can be maintained via CMS.' ?></p>
+                            </div>
+                        <?php elseif ($profilSlug === 'profil-2') : ?>
+                            <!-- Layout Template: Profil Tab -->
+                            <div class="pms-profile-tabs-container">
+                                <div class="pms-tab-nav-wrapper">
+                                    <button type="button" class="pms-tab-scroll-btn pms-tab-scroll-left" id="pmsTabScrollLeft" aria-label="Scroll left">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="15 18 9 12 15 6"></polyline>
+                                        </svg>
+                                    </button>
+                                    <div class="pms-tab-nav-scroller" id="pmsTabNavScroller">
+                                        <div class="pms-tab-nav-bar" role="tablist">
+                                            <?php foreach ($sections as $idx => $sec) :
+                                                $secTitle = $isIndo
+                                                    ? (!empty($sec['JUDUL']) ? $sec['JUDUL'] : (!empty($sec['TITLE']) ? $sec['TITLE'] : 'Section ' . ($idx + 1)))
+                                                    : (!empty($sec['TITLE']) ? $sec['TITLE'] : (!empty($sec['JUDUL']) ? $sec['JUDUL'] : 'Section ' . ($idx + 1)));
+                                            ?>
+                                                <button type="button" class="pms-tab-btn <?= $idx === 0 ? 'active' : '' ?>" data-tab-idx="<?= $idx ?>" role="tab">
+                                                    <?= esc($secTitle) ?>
+                                                </button>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="pms-tab-scroll-btn pms-tab-scroll-right" id="pmsTabScrollRight" aria-label="Scroll right">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="9 18 15 12 9 6"></polyline>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="pms-tab-panels">
+                                    <?php foreach ($sections as $idx => $sec) :
+                                        $secBody = $isIndo
+                                            ? (!empty($sec['KETERANGAN']) ? $sec['KETERANGAN'] : (!empty($sec['DESCRIPTION']) ? $sec['DESCRIPTION'] : ''))
+                                            : (!empty($sec['DESCRIPTION']) ? $sec['DESCRIPTION'] : (!empty($sec['KETERANGAN']) ? $sec['KETERANGAN'] : ''));
+                                    ?>
+                                        <div class="pms-tab-panel <?= $idx === 0 ? 'active' : '' ?>" id="pmsTabSec<?= $idx ?>" role="tabpanel">
+                                            <div class="pms-section-body">
+                                                <?= $secBody ?>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        <?php elseif ($profilSlug === 'profil-3') : ?>
+                            <!-- Layout Template: Profil Accordion -->
+                            <div class="pms-profile-accordion" id="pmsProfileAccordion">
+                                <?php foreach ($sections as $idx => $sec) :
+                                    $secTitle = $isIndo
+                                        ? (!empty($sec['JUDUL']) ? $sec['JUDUL'] : (!empty($sec['TITLE']) ? $sec['TITLE'] : 'Section ' . ($idx + 1)))
+                                        : (!empty($sec['TITLE']) ? $sec['TITLE'] : (!empty($sec['JUDUL']) ? $sec['JUDUL'] : 'Section ' . ($idx + 1)));
+                                    $secBody = $isIndo
+                                        ? (!empty($sec['KETERANGAN']) ? $sec['KETERANGAN'] : (!empty($sec['DESCRIPTION']) ? $sec['DESCRIPTION'] : ''))
+                                        : (!empty($sec['DESCRIPTION']) ? $sec['DESCRIPTION'] : (!empty($sec['KETERANGAN']) ? $sec['KETERANGAN'] : ''));
+                                ?>
+                                    <div class="pms-accordion-item <?= $idx === 0 ? 'open' : '' ?>">
+                                        <button type="button" class="pms-accordion-header" aria-expanded="<?= $idx === 0 ? 'true' : 'false' ?>">
+                                            <span class="pms-accordion-title">
+                                                <span class="pms-section-dot"></span>
+                                                <?= esc($secTitle) ?>
+                                            </span>
+                                            <svg class="pms-accordion-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="6 9 12 15 18 9"></polyline>
+                                            </svg>
+                                        </button>
+                                        <div class="pms-accordion-content" style="<?= $idx === 0 ? 'display: block;' : 'display: none;' ?>">
+                                            <div class="pms-section-body">
+                                                <?= $secBody ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else : ?>
+                            <!-- Layout Template: Profil Klasik (Flowing vertical sections) -->
+                            <?php foreach ($sections as $sec) : 
+                                $secTitle = $isIndo
+                                    ? (!empty($sec['JUDUL']) ? $sec['JUDUL'] : (!empty($sec['TITLE']) ? $sec['TITLE'] : ''))
+                                    : (!empty($sec['TITLE']) ? $sec['TITLE'] : (!empty($sec['JUDUL']) ? $sec['JUDUL'] : ''));
+                                
+                                $secBody = $isIndo
+                                    ? (!empty($sec['KETERANGAN']) ? $sec['KETERANGAN'] : (!empty($sec['DESCRIPTION']) ? $sec['DESCRIPTION'] : ''))
+                                    : (!empty($sec['DESCRIPTION']) ? $sec['DESCRIPTION'] : (!empty($sec['KETERANGAN']) ? $sec['KETERANGAN'] : ''));
+                                
+                                if (empty($secTitle) && empty($secBody)) continue;
+                            ?>
+                                <div class="pms-profile-section-item">
+                                    <h4 class="pms-section-title">
+                                        <span class="pms-section-dot"></span>
+                                        <?= esc($secTitle) ?>
+                                    </h4>
+                                    <div class="pms-section-body">
+                                        <?= $secBody ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <style>
-.rata {
-   text-align:justify
-}
-.rata br {
-   margin-bottom:10px
-}
-.getprofil {
-   text-decoration:underline;
-}
+    /* =========================================================
+       DYNAMIC PROFILE DETAIL STYLES
+       ========================================================= */
+    .pms-profile-back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #00828a;
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none !important;
+        padding: 6px 14px;
+        background: #f0fdfa;
+        border: 1px solid #ccfbf1;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .pms-profile-back-link:hover {
+        background: #00ADB5;
+        color: #ffffff;
+        border-color: #00ADB5;
+        transform: translateX(-3px);
+    }
+
+    /* Sidebar Navigation */
+    .pms-profile-sidebar {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 20px 16px;
+        position: sticky;
+        top: 24px;
+    }
+
+    .pms-sidebar-group-title {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #204280;
+        padding: 0 10px 8px;
+        border-bottom: 2px solid #e2e8f0;
+        margin-bottom: 8px;
+    }
+
+    .pms-sidebar-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .pms-sidebar-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        text-decoration: none !important;
+        transition: all 0.2s ease;
+        margin-bottom: 4px;
+        border: 1px solid transparent;
+    }
+
+    .pms-sidebar-item:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+
+    .pms-sidebar-item.active {
+        background: #ffffff;
+        border-color: #00ADB5;
+        box-shadow: 0 4px 14px rgba(0, 173, 181, 0.12);
+    }
+
+    .pms-sidebar-indicator {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #cbd5e1;
+        margin-top: 6px;
+        flex-shrink: 0;
+        transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .pms-sidebar-item.active .pms-sidebar-indicator {
+        background: #00ADB5;
+        transform: scale(1.4);
+    }
+
+    .pms-sidebar-item-name {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.35;
+    }
+
+    .pms-sidebar-item.active .pms-sidebar-item-name {
+        color: #00ADB5;
+    }
+
+    .pms-sidebar-item-role {
+        font-size: 11.5px;
+        color: #64748b;
+        margin-top: 2px;
+        line-height: 1.3;
+    }
+
+    /* Content Card */
+    .pms-profile-content-card {
+        padding: 0 10px;
+    }
+
+    .pms-profile-main-header {
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 25px;
+        margin-bottom: 30px;
+    }
+
+    .pms-profile-photo-box {
+        max-width: 320px;
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 22px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e2e8f0;
+    }
+
+    .pms-profile-photo {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+    }
+
+    .pms-profile-role-badge {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #00828a;
+        background: rgba(0, 173, 181, 0.1);
+        padding: 4px 14px;
+        border-radius: 20px;
+        margin-bottom: 10px;
+    }
+
+    .pms-profile-fullname {
+        font-size: 26px;
+        font-weight: 800;
+        color: #204280;
+        margin: 0 0 14px 0;
+        letter-spacing: -0.3px;
+    }
+
+    .pms-profile-lead-desc {
+        font-size: 15px;
+        color: #334155;
+        line-height: 1.8;
+        margin: 0;
+    }
+
+    /* Section Items */
+    .pms-profile-section-item {
+        margin-bottom: 30px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .pms-profile-section-item:last-child {
+        border-bottom: none;
+    }
+
+    .pms-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 17px;
+        font-weight: 700;
+        color: #204280;
+        margin: 0 0 14px 0;
+    }
+
+    .pms-section-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #00ADB5;
+        flex-shrink: 0;
+    }
+
+    .pms-section-body {
+        font-size: 14.5px;
+        color: #334155;
+        line-height: 1.8;
+    }
+
+    .pms-section-body p {
+        margin-bottom: 12px;
+        text-align: justify;
+    }
+
+    .pms-section-body p:last-child {
+        margin-bottom: 0;
+    }
+
+    .pms-section-body h1,
+    .pms-section-body h2,
+    .pms-section-body h3,
+    .pms-section-body h4,
+    .pms-section-body h5,
+    .pms-section-body h6 {
+        color: #0f172a;
+        font-weight: 700;
+        margin-top: 18px;
+        margin-bottom: 8px;
+    }
+
+    .pms-section-body ul,
+    .pms-section-body ol {
+        padding-left: 24px;
+        margin-bottom: 14px;
+    }
+
+    .pms-section-body ul {
+        list-style-type: disc;
+    }
+
+    .pms-section-body ol {
+        list-style-type: decimal;
+    }
+
+    .pms-section-body li {
+        margin-bottom: 6px;
+        line-height: 1.7;
+    }
+
+    .pms-section-body blockquote {
+        border-left: 4px solid #00ADB5;
+        padding: 8px 16px;
+        margin: 14px 0;
+        background: #f8fafc;
+        color: #475569;
+        font-style: italic;
+        border-radius: 0 8px 8px 0;
+    }
+
+    .pms-section-body table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        font-size: 13.5px;
+    }
+
+    .pms-section-body table th,
+    .pms-section-body table td {
+        border: 1px solid #e2e8f0;
+        padding: 10px 14px;
+        text-align: left;
+    }
+
+    .pms-section-body table th {
+        background: #f1f5f9;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .pms-section-body a {
+        color: #00ADB5;
+        text-decoration: underline;
+    }
+
+    .pms-section-body a:hover {
+        color: #00828a;
+    }
+
+    .pms-section-body img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 12px 0;
+    }
+
+    .pms-profile-empty-hint {
+        padding: 30px 20px;
+        text-align: center;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px dashed #cbd5e1;
+    }
+
+    /* Tab Layout Styles (profil-2) - Elegant 1-row scrollable tab */
+    .pms-profile-tabs-container {
+        width: 100%;
+    }
+
+    .pms-tab-nav-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        margin-bottom: 24px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .pms-tab-nav-scroller {
+        flex: 1;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+        scroll-behavior: smooth;
+        padding-bottom: 2px;
+        margin-bottom: -2px;
+    }
+
+    .pms-tab-nav-scroller::-webkit-scrollbar {
+        display: none; /* Chrome, Safari */
+    }
+
+    .pms-tab-nav-bar {
+        display: inline-flex;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        gap: 8px;
+        padding: 0 4px;
+    }
+
+    .pms-tab-btn {
+        flex: 0 0 auto;
+        padding: 10px 20px;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #64748b;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        outline: none;
+        white-space: nowrap;
+        border-radius: 6px 6px 0 0;
+    }
+
+    .pms-tab-btn:hover {
+        color: #00ADB5;
+        background: rgba(0, 173, 181, 0.04);
+    }
+
+    .pms-tab-btn.active {
+        color: #00828a;
+        border-bottom-color: #00ADB5;
+        font-weight: 700;
+        background: rgba(0, 173, 181, 0.08);
+    }
+
+    .pms-tab-scroll-btn {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: #334155;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s ease;
+        z-index: 5;
+        flex-shrink: 0;
+        margin-bottom: -2px;
+    }
+
+    .pms-tab-scroll-btn:hover {
+        background: #00ADB5;
+        color: #ffffff;
+        border-color: #00ADB5;
+    }
+
+    .pms-tab-scroll-left {
+        margin-right: 6px;
+    }
+
+    .pms-tab-scroll-right {
+        margin-left: 6px;
+    }
+
+    .pms-tab-panel {
+        display: none;
+        animation: pmsFadeIn 0.3s ease;
+    }
+
+    .pms-tab-panel.active {
+        display: block;
+    }
+
+    @keyframes pmsFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Accordion Layout Styles (profil-3) */
+    .pms-profile-accordion {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .pms-accordion-item {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .pms-accordion-item.open {
+        border-color: #00ADB5;
+        box-shadow: 0 4px 14px rgba(0, 173, 181, 0.08);
+    }
+
+    .pms-accordion-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 16px 20px;
+        background: #f8fafc;
+        border: none;
+        cursor: pointer;
+        outline: none;
+        transition: background 0.2s ease;
+    }
+
+    .pms-accordion-item.open .pms-accordion-header {
+        background: #f0fdfa;
+    }
+
+    .pms-accordion-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 15px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .pms-accordion-icon {
+        color: #64748b;
+        transition: transform 0.25s ease;
+        flex-shrink: 0;
+    }
+
+    .pms-accordion-item.open .pms-accordion-icon {
+        transform: rotate(180deg);
+        color: #00ADB5;
+    }
+
+    .pms-accordion-content {
+        padding: 18px 20px 20px;
+        border-top: 1px solid #e2e8f0;
+        background: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+        .pms-profile-sidebar {
+            margin-bottom: 30px;
+            position: static;
+        }
+        .pms-profile-fullname {
+            font-size: 22px;
+        }
+        .pms-profile-photo-box {
+            max-width: 100%;
+        }
+        .pms-tab-btn {
+            padding: 8px 12px;
+            font-size: 12.5px;
+        }
+    }
 </style>
-<section id="pms-inner-header2" style="background:#204280;">
-   <div class="container">
-      &nbsp;
-   </div>
-</section>
-<section id="pms-innerblock-small">
-   <div class="container">
-      <div class="row animate-box">
-         <div class="col-md-12 col-xs-12 text-right">
-            <?php if ($weblangs=='english') { ?><div class="breadcumbs2">Home / Profile / <b><?php echo reurl($getprofile); ?></b></div><?php } ?>
-            <?php if ($weblangs=='indonesia') { ?><div class="breadcumbs2">Home / Profil / <b><?php echo reurl($getprofile); ?></b></div><?php } ?>
-         </div>
-      </div>
-   </div>
-   <div class="container animate-box pb-5">
-      <div class="row nopadding">
-         <div class="col-md-12" style="margin-bottom: 60px;">
-            <img src="upload/homepage/<?php echo $photo; ?>" alt="" class="img-fluid">
-         </div>
-         <div class="col-md-4">
-            <?php
-            if ($weblangs=='english') echo '<div class="biry24 themeblue">Board of Commissioners</div>';
-            if ($weblangs=='indonesia') echo '<div class="biry24 themeblue">Dewan Komisaris</div>';
-         ?>
-          <div class="mt-2 themeblue biry36"><a href="profile/m-masyhud" class="themeblue biry36 <?= ($getprofile=="m-masyhud") ? 'getprofil' : ''; ?>">Muhammad Masyhud</a></div>
-            <div class="mt-2 themeblue biry36"><a href="profile/andrei" class="themeblue biry36 <?= ($getprofile=="andrei") ? 'getprofil' : ''; ?>">Andrei Simanjuntak</a></div>
-            <div class="mt-2 themeblue biry36"><a href="profile/perbager" class="themeblue biry36 <?= ($getprofile=="perbager") ? 'getprofil' : ''; ?>">Perbager</a></div>
-            <?php
-            if ($weblangs=='english') echo '<div class="biry24 themeblue mt-5">Board of Directors</div>';
-            if ($weblangs=='indonesia') echo '<div class="biry24 themeblue mt-5">Dewan Direksi</div>';
-         ?>
-            <div class="mt-2 themeblue biry36"><a href="profile/warsilan" class="themeblue biry36 <?= ($getprofile=="warsilan") ? 'getprofil' : ''; ?>">Warsilan</a></div>
-           <div class="mt-2"><a href="profile/elvin" class="themeblue biry36 <?= ($getprofile=="elvin") ? 'getprofil' : ''; ?>">Elvin Syah Putra</a></div>
-            <div class="mt-2"><a href="profile/lia-indi-agustiana" class="themeblue biry36 <?= ($getprofile=="lia-indi-agustiana") ? 'getprofil' : ''; ?>">Lia Indi Agustiana</a></div>
-         </div>
-         
-         <?php if ($getprofile=="m-masyhud") { ?>
-         <div class="col-md-8 profile-detail">
-            <?php if ($weblangs=='english') { ?>
-            <div class="row">               
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Term of Office and Basis of Appointment
-</div>
-                  <p class="rata">
-                  Indonesian citizen born in Jakarta on June 22, 1970. Currently serving as the President Commissioner of PT Pelindo Marine Service since August 1, 2024, based on the Circular Decision of the Shareholders of PT Pelindo Marine Service No. SK.03/29/7/1/PMAP/DRUT/PLJM-24 I 61/KEPSIR/KP/VII-2024.
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Education</div>
-                  <p class="rata">
-                  Obtained a Bachelor's degree in Civil Engineering from the University of Indonesia and a Master's degree in Transportation from the Bandung Institute of Technology.
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Career Experience</div>
-                  <p class="rata">
-                  In his career, he has experienced roles as a Project Leader for the development of several ports, including the Port of Wani in Central Sulawesi (2007) and the Port of Garongkong in South Sulawesi (2009). Subsequently, he held various strategic positions in several Directorates at the Ministry of Transportation. Among them are as the Head of the Sub-Directorate for the Design and Development Program of Port Facilities (2017), Head of Planning at the Inspectorate General of the Ministry of Transportation (2019), Head of the Sub-Directorate for Port Services and Business (2019), and Head of the Sub-Directorate for the Arrangement and Planning of Port Development (2022).
-                  </p>
-               </div>
-            </div>
-            <?php } ?>
-            <?php if ($weblangs=='indonesia') { ?>
-            <div class="row">               
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Masa Jabatan dan Dasar Penunjukan</div>
-                  <p class="rata">
-                  Warga Negara Indonesia yang lahir di Jakarta, 22 Juni 1970. Menjabat sebagai Komisaris Utama PT Pelindo Marine Service sejak 1 Agustus 2024 berdasarkan Keputusan Sirkuler Para Pemegang Saham PT Pelindo Marine Service No. SK.03/29/7/1/PMAP/DRUT/PLJM-24 I 61/KEPSIR/KP/VII-2024.
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Pendidikan</div>
-                  <p class="rata">
-                  Memperoleh gelar Sarjana Teknik Sipil dari Universitas Indonesia gelar Magister Transportasi dari Institut Teknologi Bandung.
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Perjalanan Karier</div>
-                  <p class="rata">
-                  Dalam karirnya berpengalaman sebagai Pemimpin Proyek Pembangunan sejumlah pelabuhan, di antaranya Pelabuhan Wani di Sulawesi Tengah (2007) dan Pelabuhan Garongkong di Sulawesi Selatan (2009). Kemudian menempati beberapa posisi strategis pada sejumlah Direktorat di Kementerian Perhubungan. Di antaranya sebagai Kepala Subdit Perancangan dan Program Pembangunan Fasilitas Pelabuhan (2017), Kepala Bagian Perencanaan, Inspektorat Jenderal Kemenhub (2019), Kepala Subdit Pelayanan Jasa dan Usaha Pelabuhan (2019), dan Kepala Subdit Tatanan dan Perencanaan Pengembangan Pelabuhan (2022). Kemudian pada tahun 2023 menjabat sebagai Direktur Kepelabuhanan, Kementerian Perhubungan, hingga saat ini.
-                  </p>
-               </div>
-            </div>
-            <?php } ?>
-         </div>
-         <?php } ?>
-         
-         <?php if ($getprofile=="andrei") { ?>
-         <div class="col-md-8 profile-detail">
-            <?php if ($weblangs=='english') { ?>
-            <div class="row">               
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Term of Office and Basis of Appointment
-</div>
-                  <p class="rata">
-                  Indonesian citizen, born in Jakarta on 14 December 1972. He has served as Commissioner of PT Pelindo Marine Service since 1 August 2024 based on the Circular Decree of the Shareholders of PT Pelindo Marine Service No. SK.03/29/7/1/PMAP/DRUT/PLJM-24 61/KEPSIR/KP/VII-2024.
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Education</div>
-                  <p class="rata">
-                  Obtained a Bachelor of Arts (BA) degree in philosophy from Ithaca College, New York, USA, and a Master of Arts (MA) degree in Addiction Counseling from Hazelden Graduate School of Addiction Studies, Centre City, Minnesota, USA.
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Career Experience</div>
-                  <p class="rata">
-                  In his career, he experienced as Director of the Recovery Unit at Yayasan Nurani Bali Drug Rehabilitation Centre (2003). Then continued his career as Manager of General Affairs (GA) at Principia Management Group (2010). In 2015, he worked as a Project Lobbyist at North Star Group and succeeded in approaching and strategising efforts at the State Electricity Company (PLN) and several state-owned enterprises.
-                  </p>
-               </div>
-            </div>
-            <?php } ?>
-            <?php if ($weblangs=='indonesia') { ?>
-            <div class="row">               
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Masa Jabatan dan Dasar Pengangkatan</div>
-                  <p class="rata">
-                  Warga Negara Indonesia, lahir di Jakarta pada 14 Desember 1972. Menjabat sebagai Komisaris PT Pelindo Marine Service sejak 1 Agustus 2024 berdasarkan Keputusan Sirkuler Para Pemegang Saham PT Pelindo Marine Service No. SK.03/29/7/1/PMAP/DRUT/PLJM-24 I 61/KEPSIR/KP/VII-2024.
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Pendidikan</div>
-                  <p class="rata">
-                  Memperoleh gelar Bachelor of Arts (BA) di bidang filsafat dari Perguruan Tinggi Ithaca, New York, Amerika Serikat, serta gelar Master of Arts (MA) di bidang Addiction Counseling dari Hazelden Graduate School of Addiction Studies, Center City, Minnesota, Amerika Serikat.
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Perjalanan Karier</div>
-                  <p class="rata">
-                  Dalam karirnya berpengalaman sebagai Direktur Unit Pemulihan di Balai Rehabilitasi Narkoba Yayasan Nurani Bali (2003). Kemudian melanjutkan karir sebagai Manager of General Affair (GA) di Principia Management Group (2010). Pada tahun 2015, berkarir sebagai Project Lobbyist di North Star Group dan berhasil dalam upaya pendekatan dan strategi di Perusahaan Listrik Negara (PLN), serta beberapa perusahaan milik pemerintah.
-                  </p>
-               </div>
-            </div>
-            <?php } ?>
-         </div>
-         <?php } ?>
-         
-         <?php if ($getprofile=="perbager") { ?>
-         <div class="col-md-8 profile-detail">
-            <?php if ($weblangs=='english') { ?>
-            <div class="row">               
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Term of Office and Basis of Appointment
-</div>
-                  <p class="rata">
-                  Indonesian citizen born in Medan on December 29, 1994. Currently serving as the Independent Commissioner of PT Pelindo Marine Service since January 1, 2025, based on the Circular Decision of the Shareholders of PT Pelindo Marine Service No. SK.03/29/12/2/DPAP/DRUT/PLJM-24 | 87/KEPSIR/KP/XII-2024
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Education</div>
-                  <p class="rata">
-                  Obtained a Bachelor of Economic Tax
-                  <br />Management from the University of Borobudur.
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Career Experience</div>
-                  <p class="rata">
-                  In his career, he has experienced in construction projects carried out by Waskita Beton Precast (2019), served as a member of the communication team at the Ministry of State-Owned Enterprises (2019–2024), and has been part of the staff of the Chairman of the Indonesian Football Association (PSSI), he has also played a key role in the renovation of 21 football stadiums and the development of young players in Indonesia to date.
-                  </p>
-               </div>
-            </div>
-            <?php } ?>
-            <?php if ($weblangs=='indonesia') { ?>
-            <div class="row">               
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Masa Jabatan dan Dasar Pengangkatan</div>
-                  <p class="rata">
-                  Warga Negara Indonesia yang lahir di Medan, 29 Desember 1994. Menjabat sebagai Komisaris IndependenPT Pelindo Marine Service sejak 1 Januari 2025 berdasarkan Keputusan Sirkuler Para Pemegang Saham PT Pelindo Marine Service No. SK.03/29/12/2/DPAP/DRUT/PLJM-24 | 87/KEPSIR/KP/XII-2024
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Pendidikan</div>
-                  <p class="rata">
-                  Memperoleh gelar Sarjana Manajemen Ekonomi Perpajakan dari Universitas Borobudur.
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Perjalanan Karier</div>
-                  <p class="rata">
-                  Dalam karirnya berpengalaman dalam proyek pembangunan yang dilaksanakan oleh Waskita Beton Precast (2019), anggota tim komunikasi Kementerian Badan Usaha Milik Negara (BUMN) (2019-2024), dan menjadi bagian staf dari Ketua Persatuan Sepak Bola Seluruh Indonesia (PSSI), serta berperan penting pada renovasi 21 Stadion Sepak Bola dan pengembangan pemain muda di Indonesia hingga saat ini.
-                  </p>
-               </div>
-            </div>
-            <?php } ?>
-         </div>
-         <?php } ?>
-         
-         <?php if ($getprofile=="lia-indi-agustiana") { ?>
-         <div class="col-md-8 profile-detail">
-            <?php if ($weblangs=='english') { ?>
-            <div class="row">
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Term of Office and Basis of Appointment</div>
-                  <p class="rata">
-                     Indonesian Citizen, born in Surabaya on Agustus 1st, 1982. She has served as the Director of Finance, Human Capital, and General Affairs of PT Pelindo Marine Service since November 9th, 2020, based on the Circular Resolution of the Shareholders outside the General Meeting of Shareholders of PT Pelindo Marine Service No. KEP.0181/KU.07.01/HOFC-2020 | 127.1/KEPSIR/KP.III/XI- 2020.
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Education</div>
-                  <p class="rata">
-                     She earned a Bachelor's Degree in Accounting from Universitas Airlangga (Unair) in 2004 and a Master of Business Administration (MBA) degree from Bandung Institute of Technology (ITB) in 2019. Besides non-formal education, she also participated in various courses and training such as Certified Risk Management Professional (CRMP) organized by LSPMR, Certified Executive Public Relations organized by LSPR, and Chartered Accountant organized by IAI.<br />Moreover, she participated in the Risk Management Conference held in Semarang, the Bloomberg System Workshop held by Bloomberg in Jakarta, and the Asia Pacific Economy Forum held by Citibank in Hong Kong.
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Career Experience</div>
-                  <p class="rata">
-                  She began her career as VP of Financial Risk (2015-2017), VP of Corporate Communications (2017-2018), and SVP of Management System and Risk Management (2018 - 2020).
-                  </p>
-               </div>
-            </div>
-            <?php } ?>
-            <?php if ($weblangs=='indonesia') { ?>
-            <div class="row">
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Masa Jabatan dan Dasar Penunjukan</div>
-                  <p class="rata">
-                  Menjabat sebagai Direktur Keuangan, SDM dan Umum PT Pelindo Marine Service sejak 9 November 2020 berdasarkan Keputusan Sirkuler Para Pemegang Saham di Luar Rapat Umum Pemegang Saham PT Pelindo Marine Service No. KEP.0181/KU.07.01/HOFC-2020 | 127.1/KEPSIR/KP.III/XI- 2020.
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Pendidikan</div>
-                  <p class="rata">
-                  Memperoleh gelar Sarjana Akuntansi dalam bidang Akuntansi dari Universitas Airlangga pada tahun 2004 serta gelar Master of Business Administration (MBA) dari Institut Teknologi Bandung pada tahun 2019. Di samping pendidikan non-formal, turut terlibat berpartisipasi dalam berbagai pendidikan dan pelatihan yang diselenggarakan, antara lain Certified Risk Management Profesional yang diselenggarakan LSPMR, Certified Executive Public Relation yang diselenggarakan LSPR, Chartered Accountant yang diselenggarakan IAI.
-                  <br />Selain itu, turut mengikuti Konferensi Manajemen Risiko yang diselenggarakan di Semarang, Bloomberg System Workshop yang diselenggarakan oleh Bloomberg di Jakarta, dan Asia Pacific Economy Forum yang diselenggarakan oleh Citibank di Hong Kong.
-                  </p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Perjalanan Karier</div>
-                  <p class="rata">
-                  Memulai karier manajerial dengan menjabat sebagai VP Financial Risk pada tahun 2015 - 2017, kemudian selanjutnya mengisi posisi VP Corporate Communications dari tahun 2017 - 2018, dan terakhir sebagai SVP Management System and Risk Management yang menjabat dari tahun 2018 - 2020.
-                  </p>
-               </div>
-            </div>
-            <?php } ?>
-         </div>
-         <?php } ?>
-         
-         <?php if ($getprofile=="warsilan") { ?>
-         <div class="col-md-8 profile-detail">
-            <?php if ($weblangs=='english') { ?>
-            <div class="row">
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Term of Office and Basis of Appointment</div>
-                  <p class="rata">He serves as the President Director of PT Pelindo Marine Service since June 1st, 2022 based on the Circular Resolution of the Shareholders of PT Pelindo Marine Service No: HK.104/30/513/KUAP/DRUT/PLAM-22 dan Nomor: 41/KEPSIR/KP/V-2022.</p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Education</div>
-                  <p class="rata">He graduated from the 10 Nopember Institute of Technology (ITS) in electrical engineering in 1998. He also participated in several certifications and courses, such as Certified Risk Governance Professional (CRGP) in 1998 from Risk Management Professional Certification Institute (LSPMR), Port Professionals Training from PKSPLIPB-Ministry of Transportation (2020), and Professional Internal Auditor Training from Internal Auditor Association (2020).</p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Career Experience</div>
-                  <p class="rata">He experienced held several strategic positions as Senior Vice president (SVP) and director in the maritime industry. Such as SVP of Procurement (2015-2017) and SVP of Equipment (2019-2020) in Pelindo III. He served as the Director of Operations and Engineering of PT Berlian Jasa Terminal Indonesia (BJTI Port) (2017-2019) and Director of Operations and Engineering of PT Terminal Teluk Lamong (2019-2022).</p>
-               </div>
-            </div>
-            <?php } ?>
-            <?php if ($weblangs=='indonesia') { ?>
-            <div class="row">
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Masa Jabatan dan Dasar Penunjukan</div>
-                  <p class="rata">Menjabat sebagai Direktur Utama PT Pelindo Marine Service sejak 1 Juni 2022 berdasarkan Keputusan Sirkular Para Pemegang Saham PT Pelindo Marine Service Nomor: HK.104/30/513/KUAP/DRUT/PLAM-22 dan Nomor: 41/KEPSIR/KP/V-2022.</p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Pendidikan</div>
-                  <p class="rata">Menyelesaikan Pendidikan S1 Jurusan Teknik Elektro di Institut Teknologi Sepuluh Nopember (ITS) Surabaya pada 1998. Memegang sertifikasi Certified Risk Governance Professional (CRGP) pada 2021 dari Lembaga Sertifikasi Profesi Manajemen Risiko (LSPMR). Selain itu juga telah menempuh program diklat fungsional, yakni Pendidikan dan Pelatihan Ahli Kepelabuhanan dari PKSPLIPB-Kementerian Perhubungan (2020) dan Pendidikan dan Pelatihan Professional Internal Auditor dari Asosiasi Auditor Internal (2020).</p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Perjalanan Karier</div>
-                  <p class="rata">Berpengalaman menjabat sejumlah posisi strategis dalam karirnya pada industri kepelabunanan. Baik level senior manajer, maupun Direksi pada anak perusahaan PT Pelabuhan Indonesia (Persero). Di antaranya yakni Senior Manajer Pengadaan Barang dan Jasa pada 2015 – 2017 dan Senior Manajer Peralatan pada 2019 – 2020. Sebelum terpilih sebagai Direktur Utama PT Pelindo Marine Service pernah menjabat sebagai Direktur Operasi dan Teknik PT Berlian Jasa Terminal Indonesia (BJTI Port) pada 2017 – 2019 dan Direktur Operasi dan Teknik PT Terminal Teluk Lamong (TTL) pada 2020 – 2022. </p>
-               </div>
-            </div>
-            <?php } ?>
-         </div>
-         <?php } ?>
-         
-         <?php if ($getprofile=="elvin") { ?>
-         <div class="col-md-8 profile-detail">
-            <?php if ($weblangs=='english') { ?>
-            <div class="row">
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Term of Office and Basis of Appointment</div>
-                  <p class="rata">He has been appointed as the Director of Commercial, Operations and Engineering of PT Pelindo Marine Service since March 1 2024 based on the Circular Decision of PT Pelindo Marine Service Shareholders No. SK.03/29/2/5/PMAP/DRUT/PLJM-24 and KEPSIR/KP/III.2024.</p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Education</div>
-                  <p class="rata">He graduated from the STIP Jakarta (Marine Higher Education Institute) with a Master Mariner (M. Mar. Eng.) education degree for Engineer Officer Class 1 in 2016 and Engineer Officer Class 2 in 2011. Previously, he obtained a Engineer Officer Class 3 degree from BPLP (Merchant Marine Academy) in 1996.</p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Career Experience</div>
-                  <p class="rata">He has served as Vice President of Engineering at PT Jasa Armada Indonesia (2019-2021), Senior Vice President of Product Planning Control & Added Value at PT Jasa Peralatan Pelabuhan Indonesia (2021-2022), Senior Vice President of Vessels and Channel Management at PT Pelindo Jasa Maritim (2022-2023). Currently entrusted as the Director of Commercial, Operations and Engineering of PT Pelindo Marine Service (2024 - present).</p>
-               </div>
-            </div>
-            <?php } ?>
-            <?php if ($weblangs=='indonesia') { ?>
-            <div class="row">
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Masa Jabatan dan Dasar Penunjukan</div>
-                  <p class="rata">Menjabat sebagai Direktur Komersial, Operasi, dan Teknik PT Pelindo Marine Service sejak 1 Maret 2024 berdasarkan Keputusan Sirkular Para Pemegang Saham PT Pelindo Marine Service No. SK.03/29/2/5/PMAP/DRUT/PLJM-24 dan KEPSIR/KP/III.2024.</p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Pendidikan</div>
-                  <p class="rata">Merupakan lulusan Sekolah Tinggi Ilmu Pelayaran, Jakarta (STIP) dengan gelar pendidikan Master Mariner (M. Mar. Eng.) untuk Ahli Teknika Tingkat I pada tahun 2016 dan Ahli Teknika Tingkat  II di tahun 2011. Sebelumnya memperoleh gelar Ahli Teknika Tingkat III dari BPLP Akademi Ilmu Pelayaran pada tahun 1996.</p>
-               </div>
-               <div class="col-md-12 mt-3">
-                  <div class="biry36 themeblue fbold">Perjalanan Karier</div>
-                  <p class="rata">Pernah menjabat sebagai Vice President Teknik PT Jasa Armada Indonesia (2019-2021), Senior Vice President Kontrol Perencanaan Produk & Nilai Tambah di PT Jasa Peralatan Pelabuhan Indonesia (2021-2022), Senior Vice President Kapal dan Pengelolaan Alur di PT Pelindo Jasa Maritim (2022-2023). Kini dipercaya sebagai Direktur Komersial, Operasi, dan Teknik PT Pelindo Marine Service (2024 - sekarang).</p>
-               </div>
-            </div>
-            <?php } ?>
-         </div>
-         <?php } ?>
-      </div>
-   </div>
-</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Tab switching and horizontal scroll navigation (profil-2)
+        const tabBtns = document.querySelectorAll('.pms-tab-btn');
+        const tabScroller = document.getElementById('pmsTabNavScroller');
+        const btnScrollLeft = document.getElementById('pmsTabScrollLeft');
+        const btnScrollRight = document.getElementById('pmsTabScrollRight');
+
+        if (tabScroller) {
+            const checkScrollOverflow = () => {
+                const canScrollLeft = tabScroller.scrollLeft > 5;
+                const canScrollRight = tabScroller.scrollLeft < (tabScroller.scrollWidth - tabScroller.clientWidth - 5);
+                const hasOverflow = tabScroller.scrollWidth > tabScroller.clientWidth;
+
+                if (btnScrollLeft) {
+                    btnScrollLeft.style.display = (hasOverflow && canScrollLeft) ? 'inline-flex' : 'none';
+                }
+                if (btnScrollRight) {
+                    btnScrollRight.style.display = (hasOverflow && canScrollRight) ? 'inline-flex' : 'none';
+                }
+            };
+
+            tabScroller.addEventListener('scroll', checkScrollOverflow);
+            window.addEventListener('resize', checkScrollOverflow);
+            setTimeout(checkScrollOverflow, 100);
+
+            if (btnScrollLeft) {
+                btnScrollLeft.addEventListener('click', () => {
+                    tabScroller.scrollBy({ left: -220, behavior: 'smooth' });
+                });
+            }
+
+            if (btnScrollRight) {
+                btnScrollRight.addEventListener('click', () => {
+                    tabScroller.scrollBy({ left: 220, behavior: 'smooth' });
+                });
+            }
+
+            // Drag to scroll
+            let isDown = false;
+            let startX, scrollLeft;
+            tabScroller.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - tabScroller.offsetLeft;
+                scrollLeft = tabScroller.scrollLeft;
+            });
+            window.addEventListener('mouseup', () => { isDown = false; });
+            tabScroller.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - tabScroller.offsetLeft;
+                const walk = (x - startX) * 1.5;
+                tabScroller.scrollLeft = scrollLeft - walk;
+            });
+        }
+
+        if (tabBtns.length > 0) {
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const idx = this.getAttribute('data-tab-idx');
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Center clicked tab in view if overflowing
+                    this.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+                    const panels = document.querySelectorAll('.pms-tab-panel');
+                    panels.forEach(p => p.classList.remove('active'));
+
+                    const targetPanel = document.getElementById('pmsTabSec' + idx);
+                    if (targetPanel) {
+                        targetPanel.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // Accordion toggle logic (profil-3)
+        const accordionHeaders = document.querySelectorAll('.pms-accordion-header');
+        if (accordionHeaders.length > 0) {
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', function () {
+                    const item = this.closest('.pms-accordion-item');
+                    const content = item.querySelector('.pms-accordion-content');
+                    const isOpen = item.classList.contains('open');
+
+                    if (isOpen) {
+                        item.classList.remove('open');
+                        this.setAttribute('aria-expanded', 'false');
+                        content.style.display = 'none';
+                    } else {
+                        item.classList.add('open');
+                        this.setAttribute('aria-expanded', 'true');
+                        content.style.display = 'block';
+                    }
+                });
+            });
+        }
+    });
+</script>
