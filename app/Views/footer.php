@@ -542,15 +542,27 @@
 				flex-wrap: nowrap !important;
 			}
 
-			.pms-submarine-footer label {
-				font-size: 11px !important;
-				white-space: nowrap !important;
-				overflow: hidden !important;
-				text-overflow: ellipsis !important;
+			.pms-custom-chk-wrap {
+				padding: 2px 4px !important;
+				gap: 7px !important;
+				margin: 0 !important;
 			}
 
-			.pms-submarine-footer label span {
-				font-size: 11px !important;
+			.pms-chk-box {
+				width: 15px !important;
+				height: 15px !important;
+				border-radius: 4px !important;
+				transform: none !important;
+			}
+
+			.pms-chk-icon {
+				width: 11px !important;
+				height: 11px !important;
+			}
+
+			.pms-chk-text {
+				font-size: 11.5px !important;
+				line-height: 1.35 !important;
 			}
 
 			.pms-submarine-dot {
@@ -577,12 +589,153 @@
 			justify-content: space-between;
 			flex-wrap: wrap;
 			gap: 12px;
-			padding: 13px 22px;
+			padding: 12px 22px;
 			background: rgba(6, 18, 34, 0.82);
 			backdrop-filter: blur(12px);
 			-webkit-backdrop-filter: blur(12px);
 			border-top: 1px solid rgba(0, 173, 181, 0.25);
 			font-size: 13px;
+		}
+
+		/* Precise hand-drawn style animated checkbox */
+		.pms-custom-chk-wrap {
+			display: inline-flex !important;
+			align-items: center !important;
+			gap: 8.5px !important;
+			margin: 0 !important;
+			cursor: pointer;
+			user-select: none;
+			-webkit-user-select: none;
+			position: relative;
+			padding: 2px 6px;
+			border-radius: 6px;
+			line-height: 1.35 !important;
+			vertical-align: middle !important;
+			transition: background 0.2s ease;
+		}
+
+		.pms-custom-chk-wrap:hover {
+			background: rgba(0, 173, 181, 0.08);
+		}
+
+		.pms-real-chk {
+			position: absolute;
+			opacity: 0;
+			width: 0;
+			height: 0;
+			margin: 0;
+			pointer-events: none;
+		}
+
+		.pms-chk-box {
+			width: 16px !important;
+			height: 16px !important;
+			flex-shrink: 0 !important;
+			border-radius: 4.5px !important;
+			background: rgba(8, 22, 40, 0.75);
+			border: 1.6px solid rgba(0, 173, 181, 0.45);
+			display: inline-flex !important;
+			align-items: center !important;
+			justify-content: center !important;
+			box-sizing: border-box !important;
+			position: relative;
+			margin: 0 !important;
+			transform: none !important;
+			transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+		}
+
+		.pms-chk-icon {
+			width: 12px;
+			height: 12px;
+			display: block;
+			overflow: visible;
+		}
+
+		.pms-chk-path {
+			stroke-dasharray: 17;
+			stroke-dashoffset: 17;
+			opacity: 0;
+			transition: opacity 0.15s ease;
+		}
+
+		.pms-custom-chk-wrap:hover .pms-chk-box {
+			border-color: #00ADB5;
+			transform: scale(1.06) !important;
+			box-shadow: 0 0 8px rgba(0, 173, 181, 0.4);
+		}
+
+		.pms-real-chk:checked + .pms-chk-box {
+			background: #00ADB5;
+			border-color: #00ADB5;
+			box-shadow: 0 0 12px rgba(0, 173, 181, 0.75), 0 2px 6px rgba(0, 0, 0, 0.35);
+			transform: none !important;
+			animation: pmsBoxPop 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+		}
+
+		.pms-real-chk:checked + .pms-chk-box .pms-chk-path {
+			animation: pmsCheckDraw 0.28s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+		}
+
+		.pms-real-chk:focus-visible + .pms-chk-box {
+			outline: 2px solid #00ADB5;
+			outline-offset: 2px;
+		}
+
+		.pms-chk-text {
+			color: #94a3b8;
+			font-size: 13px !important;
+			font-weight: 500;
+			letter-spacing: 0.15px;
+			line-height: 1.35 !important;
+			display: inline-block !important;
+			margin: 0 !important;
+			padding: 0 !important;
+			vertical-align: middle !important;
+			transition: color 0.2s ease;
+		}
+
+		.pms-custom-chk-wrap:hover .pms-chk-text {
+			color: #e2e8f0;
+		}
+
+		.pms-real-chk:checked ~ .pms-chk-text {
+			color: #00ADB5;
+			font-weight: 600;
+			text-shadow: 0 0 10px rgba(0, 173, 181, 0.35);
+		}
+
+		@keyframes pmsCheckDraw {
+			0% {
+				stroke-dashoffset: 17;
+				opacity: 0;
+			}
+			30% {
+				opacity: 1;
+			}
+			100% {
+				stroke-dashoffset: 0;
+				opacity: 1;
+			}
+		}
+
+		@keyframes pmsBoxPop {
+			0% { transform: scale(0.92); }
+			60% { transform: scale(1.08); }
+			100% { transform: scale(1); }
+		}
+
+		/* Fallback for users preferring reduced motion */
+		@media (prefers-reduced-motion: reduce) {
+			.pms-chk-box,
+			.pms-chk-path,
+			.pms-chk-text {
+				transition: none !important;
+				animation: none !important;
+			}
+			.pms-real-chk:checked + .pms-chk-box .pms-chk-path {
+				stroke-dashoffset: 0 !important;
+				opacity: 1 !important;
+			}
 		}
 
 		.pms-submarine-dots {
@@ -664,9 +817,14 @@
 
 				<!-- Maritime Footer -->
 				<div class="pms-submarine-footer">
-					<label class="d-inline-flex align-items-center mb-0" style="cursor: pointer; user-select: none; font-size: 12.5px;">
-						<input type="checkbox" id="chk-pms-dontshow" style="margin-right: 8px; accent-color: #00ADB5; width: 16px; height: 16px; cursor: pointer;">
-						<span style="color: #94a3b8; font-weight: 500;"><?php echo $txtDontShow; ?></span>
+					<label class="d-inline-flex align-items-center mb-0 pms-custom-chk-wrap" for="chk-pms-dontshow">
+						<input type="checkbox" id="chk-pms-dontshow" class="pms-real-chk">
+						<span class="pms-chk-box">
+							<svg class="pms-chk-icon" viewBox="0 0 16 16" fill="none">
+								<path class="pms-chk-path" d="M 3.2 8.6 L 6.5 11.8 L 13.2 4.2" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+							</svg>
+						</span>
+						<span class="pms-chk-text"><?php echo $txtDontShow; ?></span>
 					</label>
 
 					<?php if ($popupCount > 1) { ?>
@@ -844,6 +1002,11 @@
             localStorage.setItem('pms_pop_status', '1');
           } catch(e) {}
           document.cookie = "pop_status=1; path=/; max-age=" + (24 * 3600);
+        } else {
+          try {
+            localStorage.removeItem('pms_pop_status');
+          } catch(e) {}
+          document.cookie = "pop_status=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 UTC";
         }
       }
 
@@ -854,6 +1017,16 @@
         } catch(e) {}
         if (document.cookie.indexOf('pop_status=1') !== -1) {
           isHidden = true;
+        }
+
+        // Allow forcing popup display during testing via parameter or hash
+        var urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('popup') || urlParams.has('preview') || urlParams.has('reset') || window.location.hash === '#popup') {
+          isHidden = false;
+          try {
+            localStorage.removeItem('pms_pop_status');
+          } catch(e) {}
+          document.cookie = "pop_status=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 UTC";
         }
 
         if (!isHidden) {
