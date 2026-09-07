@@ -127,13 +127,72 @@ class Chat extends BaseController
         return preg_match('/[a-z]/i', $message) === 1 ? 'en' : 'id';
     }
 
+    /**
+     * Knowledge base diambil dari tabel chatbot_* yang dikelola CMS.
+     * Cache di-key dengan stempel perubahan (MAX updated_at + jumlah baris),
+     * jadi hasil edit di CMS langsung terpakai tanpa menunggu TTL.
+     * File FAQ lama tetap menjadi fallback bila tabel kosong / DB bermasalah.
+     */
     private function knowledgeBase(string $lang): string
     {
+        try {
+            $db    = db_connect();
+            $stamp = $db->table('chatbot_knowledge')
+                ->select('COUNT(id) AS n, MAX(updated_at) AS u, MAX(created_at) AS c')
+                ->get()->getRowArray();
+
+            if ((int) ($stamp['n'] ?? 0) > 0) {
+                $key = "chat_kb_{$lang}_" . md5(json_encode($stamp));
+
+                return cache()->remember($key, 86400, fn (): string => $this->buildKnowledgeBase($db, $lang));
+            }
+        } catch (\Throwable $e) {
+            log_message('warning', 'Chatbot knowledge DB error: ' . $e->getMessage());
+        }
+
         $path = WRITEPATH . 'chatbot/' . self::KNOWLEDGE_BASE_FILES[$lang];
 
         return cache()->remember("chat_knowledge_base_{$lang}", 3600, static function () use ($path): string {
             return is_file($path) ? (string) file_get_contents($path) : '';
         });
+    }
+
+    /** Susun teks knowledge base dari tabel dalam format file FAQ lama. */
+    private function buildKnowledgeBase($db, string $lang): string
+    {
+        $rows = $db->table('chatbot_knowledge k')
+            ->select('k.pertanyaan, k.jawaban, k.pertanyaan_en, k.jawaban_en, c.nama, c.nama_en')
+            ->join('chatbot_kategori c', 'c.id = k.kategori_id')
+            ->where('k.status_aktif', 1)
+            ->where('c.status_aktif', 1)
+            ->orderBy('c.urutan', 'ASC')
+            ->orderBy('k.urutan', 'ASC')
+            ->orderBy('k.id', 'ASC')
+            ->get()->getResultArray();
+
+        $teks     = "=== KNOWLEDGE BASE: PT PELINDO MARINE SERVICE ===\n";
+        $kategori = null;
+
+        foreach ($rows as $row) {
+            $isEn = $lang === 'en';
+            $q    = trim((string) ($isEn ? $row['pertanyaan_en'] : $row['pertanyaan']));
+            $a    = trim((string) ($isEn ? $row['jawaban_en'] : $row['jawaban']));
+
+            if ($q === '' || $a === '') {
+                continue; // baris tanpa terjemahan dilewati di KB bahasa tsb.
+            }
+
+            $namaKategori = $isEn && trim((string) $row['nama_en']) !== '' ? $row['nama_en'] : $row['nama'];
+
+            if ($namaKategori !== $kategori) {
+                $kategori = $namaKategori;
+                $teks    .= "\n## " . mb_strtoupper($namaKategori) . "\n";
+            }
+
+            $teks .= "\nQ: {$q}\nA: {$a}\n";
+        }
+
+        return $teks;
     }
 
     private function escalate(string $escalationMessage, string $visitorName, string $visitorEmail, string $question): ResponseInterface
