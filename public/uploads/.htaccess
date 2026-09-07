@@ -1,0 +1,19 @@
+# Matikan eksekusi script PHP & script berbahaya lainnya
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|php8|phps|pht|pl|py|cgi|asp|sh|exe|bat)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Matikan engine PHP bila mod_php aktif
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# Cegah directory listing (melihat isi folder) & eksekusi CGI
+Options -Indexes -ExecCGI

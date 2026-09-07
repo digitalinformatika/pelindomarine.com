@@ -8,7 +8,23 @@ class HomepageModel extends Model
 {
     public function getWelcome(): array
     {
-        return $this->db->table('welcome_screen')->get()->getResultArray();
+        $today = date('Y-m-d');
+
+        return $this->db->table('welcome_screen')
+            ->where('status', '1')
+            ->where('tgl_start <=', $today)
+            ->where('tgl_end >=', $today)
+            ->orderBy('welcome_screen_id', 'DESC')
+            ->get()->getResultArray();
+    }
+
+    public function getHomeBanners(): array
+    {
+        return $this->db->table('banner_home')
+            ->where('status', 1)
+            ->orderBy('urutan', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->get()->getResultArray();
     }
 
     public function getHomebody(): array

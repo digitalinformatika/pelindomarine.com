@@ -35,3 +35,19 @@ $routes->post('chat', 'Chat::respond');
 
 // Form E-PPID (submit via AJAX)
 $routes->post('ppid/ajax-requestPost', 'FormWizard::ajaxRequestPost');
+
+// File statis upload warisan lama
+$routes->get('main/uploads/(:any)', static function (string $path) {
+    $cleanPath = str_replace(['..', "\0"], '', rawurldecode($path));
+    $real = FCPATH . 'uploads/' . $cleanPath;
+    if (! is_file($real)) {
+        $real = FCPATH . 'upload/' . $cleanPath;
+    }
+    if (is_file($real)) {
+        return service('response')
+            ->setHeader('Content-Type', mime_content_type($real) ?: 'application/octet-stream')
+            ->setHeader('Cache-Control', 'public, max-age=86400')
+            ->setBody(file_get_contents($real));
+    }
+    throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+});

@@ -67,3 +67,12 @@
 #--------------------------------------------------------------------
 
 # logger.threshold = 4
+
+#--------------------------------------------------------------------
+# PELINDO CUSTOM CONFIG (OPTIONAL OVERRIDES)
+#--------------------------------------------------------------------
+
+# pelindo.contactEmail = 'info@pelindomarine.com'
+# pelindo.uploadPath = ''
+# pelindo.geminiApiKey = ''
+# pelindo.chatAdminEmail = ''
