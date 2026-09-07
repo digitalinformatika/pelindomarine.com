@@ -938,8 +938,51 @@
 	</div>
 	<?php } ?>
 	
-	<div class='scrolltop'>
-		<div class='scroll icon'><img src="images/goup.png" width="50"></div>
+	<style>
+		.scrolltop {
+			position: fixed !important;
+			bottom: 90px !important;
+			right: 23px !important;
+			width: 50px !important;
+			height: 50px !important;
+			border-radius: 50% !important;
+			z-index: 99999 !important;
+			cursor: pointer !important;
+			opacity: 0 !important;
+			visibility: hidden !important;
+			transform: translateY(18px) scale(0.85) !important;
+			transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s !important;
+			pointer-events: none !important;
+			display: flex !important;
+			align-items: center !important;
+			justify-content: center !important;
+			-webkit-tap-highlight-color: transparent;
+			user-select: none;
+		}
+
+		.scrolltop.is-visible {
+			opacity: 1 !important;
+			visibility: visible !important;
+			transform: translateY(0) scale(1) !important;
+			pointer-events: auto !important;
+		}
+
+		.scrolltop:hover {
+			transform: translateY(-4px) scale(1.08) !important;
+		}
+
+		.scrolltop:active {
+			transform: scale(0.94) !important;
+		}
+
+		body.mrm-chat-open .scrolltop {
+			opacity: 0 !important;
+			visibility: hidden !important;
+			pointer-events: none !important;
+		}
+	</style>
+	<div class='scrolltop' role="button" aria-label="Scroll to top" title="Scroll to top">
+		<div class='scroll icon'><img src="<?php echo base_url('/'); ?>images/goup.png" width="50" alt="Scroll to top"></div>
 	</div>
 	
 	
@@ -1572,14 +1615,36 @@
 	</script>
 	
 	<script>
-		$(window).scroll(function() {
-			if ($(this).scrollTop() > 50 ) {
-				$('.scrolltop:hidden').stop(true, true).fadeIn();
-			} else {
-				$('.scrolltop').stop(true, true).fadeOut();
+		(function() {
+			function checkScrollTop() {
+				var st = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+				var btn = document.querySelector('.scrolltop');
+				if (!btn) return;
+
+				if (st > 80) {
+					btn.classList.add('is-visible');
+				} else {
+					btn.classList.remove('is-visible');
+				}
 			}
-		});
-		$(function(){$(".scroll").click(function(){$("html,body").animate({scrollTop:$(".top").offset().top},"1000");return false})})
+
+			window.addEventListener('scroll', checkScrollTop, { passive: true });
+			window.addEventListener('load', checkScrollTop);
+			document.addEventListener('DOMContentLoaded', checkScrollTop);
+
+			// Smooth scroll to top on click
+			document.addEventListener('click', function(e) {
+				var btn = e.target.closest('.scrolltop, .scroll');
+				if (btn) {
+					e.preventDefault();
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+					if (window.jQuery) {
+						window.jQuery('html, body').stop(true).animate({ scrollTop: 0 }, 500);
+					}
+					return false;
+				}
+			});
+		})();
 	</script>
 	<script type="text/javascript" >
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

@@ -7,6 +7,7 @@ use App\Models\HomepageModel;
 use App\Models\NewsModel;
 use App\Models\SearchModel;
 use App\Models\ServicesModel;
+use App\Models\StrukturOrganisasiModel;
 use CodeIgniter\HTTP\RedirectResponse;
 
 class Home extends BaseController
@@ -16,6 +17,7 @@ class Home extends BaseController
     protected NewsModel $newsModel;
     protected ServicesModel $servicesModel;
     protected SearchModel $searchModel;
+    protected StrukturOrganisasiModel $strukturModel;
 
     public function initController(
         \CodeIgniter\HTTP\RequestInterface $request,
@@ -30,6 +32,7 @@ class Home extends BaseController
         $this->newsModel     = model(NewsModel::class);
         $this->servicesModel = model(ServicesModel::class);
         $this->searchModel   = model(SearchModel::class);
+        $this->strukturModel = model(StrukturOrganisasiModel::class);
     }
 
     public function index(): string
@@ -61,10 +64,51 @@ class Home extends BaseController
         ]);
     }
 
-    public function profiles(): string
+    public function organizationStructure(): string
     {
+        $banner   = $this->strukturModel->getBanner('bagan');
+        $template = $this->strukturModel->getActiveTemplate('bagan');
+        $officers = $this->strukturModel->getAllActive();
+        $tree     = $this->strukturModel->getTree();
+
+        return $this->renderPage('company/organization_structure', [
+            'banner'   => $banner,
+            'template' => $template,
+            'officers' => $officers,
+            'tree'     => $tree,
+        ]);
+    }
+
+    public function profiles(?string $slug = null): string
+    {
+        if (empty($slug)) {
+            $slug = uri_segment(2);
+        }
+
+        $allOfficers = $this->strukturModel->getAllActive();
+        $officer     = $this->strukturModel->findOfficer($slug);
+
+        // Fallback: If no officer matched, default to the first officer
+        if (! $officer && ! empty($allOfficers)) {
+            $officer = $allOfficers[0];
+        }
+
+        $sections = [];
+        if ($officer) {
+            $sections = $this->strukturModel->getOfficerProfiles((int) $officer['STRUKTUR_ID']);
+        }
+
+        $banner   = $this->strukturModel->getBanner('profil');
+        $template = $this->strukturModel->getActiveTemplate('profil');
+
         return $this->renderPage('company/profiles', [
             'companydata' => $this->companyModel->getCompany(),
+            'currentSlug' => $slug,
+            'officer'     => $officer,
+            'sections'    => $sections,
+            'allOfficers' => $allOfficers,
+            'banner'      => $banner,
+            'template'    => $template,
         ]);
     }
 
