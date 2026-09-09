@@ -128,3 +128,6 @@ _modules/*
 # User uploads (keep directory & .htaccess, ignore uploaded files)
 /public/uploads/*
 !/public/uploads/.htaccess
+
+# .env per-server yang berisi kredensial
+.env.*
