@@ -329,7 +329,7 @@ if (! function_exists('render_officer_photo')) {
         border-radius: 4px;
     }
     .pms-tree-viewport::-webkit-scrollbar-thumb:hover {
-        background: #00ADB5;
+        background: #ff7f23;
     }
 
     .pms-tree-viewport.is-dragging {
@@ -486,28 +486,28 @@ if (! function_exists('render_officer_photo')) {
 
     .pms-node-card:hover {
         transform: translateY(-6px);
-        border-color: #00ADB5;
-        box-shadow: 0 16px 36px rgba(0, 173, 181, 0.14), 0 4px 12px rgba(0, 0, 0, 0.05);
+        border-color: #ff7f23;
+        box-shadow: 0 16px 36px rgba(255, 127, 35, 0.14), 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
     /* President Director Special Card */
     .pms-node-card.is-dirut {
         width: 280px;
         padding: 28px 22px 22px;
-        border: 2px solid #00ADB5;
-        box-shadow: 0 12px 30px rgba(0, 173, 181, 0.12), 0 4px 10px rgba(0, 0, 0, 0.04);
+        border: 2px solid #ff7f23;
+        box-shadow: 0 12px 30px rgba(255, 127, 35, 0.12), 0 4px 10px rgba(0, 0, 0, 0.04);
         background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
     }
 
     .pms-node-card.is-dirut:hover {
         transform: translateY(-8px);
-        box-shadow: 0 22px 45px rgba(0, 173, 181, 0.22);
+        box-shadow: 0 22px 45px rgba(255, 127, 35, 0.22);
     }
 
     .pms-node-badge-top {
         position: absolute;
         top: -12px;
-        background: linear-gradient(135deg, #00ADB5, #204280);
+        background: linear-gradient(135deg, #ff7f23, #204280);
         color: #ffffff;
         font-size: 11px;
         font-weight: 700;
@@ -515,7 +515,7 @@ if (! function_exists('render_officer_photo')) {
         text-transform: uppercase;
         padding: 3px 12px;
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 173, 181, 0.4);
+        box-shadow: 0 2px 8px rgba(255, 127, 35, 0.4);
     }
 
     /* Avatar Ring */
@@ -534,14 +534,14 @@ if (! function_exists('render_officer_photo')) {
     }
 
     .pms-node-card:hover .pms-node-avatar-ring {
-        background: linear-gradient(135deg, #00ADB5, #204280);
+        background: linear-gradient(135deg, #ff7f23, #204280);
         transform: scale(1.05);
     }
 
     .pms-node-avatar-ring.is-large {
         width: 86px;
         height: 86px;
-        background: linear-gradient(135deg, #00ADB5, #204280);
+        background: linear-gradient(135deg, #ff7f23, #204280);
     }
 
     .pms-node-avatar-img {
@@ -557,7 +557,7 @@ if (! function_exists('render_officer_photo')) {
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        background: linear-gradient(135deg, #204280, #00ADB5);
+        background: linear-gradient(135deg, #204280, #ff7f23);
         color: #ffffff;
         display: flex;
         align-items: center;
@@ -592,7 +592,7 @@ if (! function_exists('render_officer_photo')) {
     }
 
     .pms-node-jabatan.is-accent {
-        color: #00828a;
+        color: #ce2c00;
     }
 
     .pms-node-nama {
@@ -610,7 +610,7 @@ if (! function_exists('render_officer_photo')) {
     }
 
     .pms-node-card:hover .pms-node-nama {
-        color: #00ADB5;
+        color: #ff7f23;
     }
 
     .pms-node-cta {
@@ -619,15 +619,15 @@ if (! function_exists('render_officer_photo')) {
         gap: 5px;
         font-size: 12px;
         font-weight: 600;
-        color: #00ADB5;
+        color: #ff7f23;
         padding: 4px 10px;
-        background: rgba(0, 173, 181, 0.08);
+        background: rgba(255, 127, 35, 0.08);
         border-radius: 12px;
         transition: all 0.2s ease;
     }
 
     .pms-node-card:hover .pms-node-cta {
-        background: #00ADB5;
+        background: #ff7f23;
         color: #ffffff;
     }
 
@@ -712,10 +712,10 @@ if (! function_exists('render_officer_photo')) {
     }
 
     .pms-list-item-card:hover {
-        border-color: #00ADB5;
+        border-color: #ff7f23;
         background: #f8fafc;
         transform: translateX(4px);
-        box-shadow: 0 6px 20px rgba(0, 173, 181, 0.12);
+        box-shadow: 0 6px 20px rgba(255, 127, 35, 0.12);
     }
 
     .pms-list-item-avatar {
@@ -734,7 +734,7 @@ if (! function_exists('render_officer_photo')) {
     .pms-list-item-jabatan {
         font-size: 12px;
         font-weight: 700;
-        color: #00ADB5;
+        color: #ff7f23;
         text-transform: uppercase;
         letter-spacing: 0.3px;
         margin-bottom: 3px;
@@ -753,7 +753,7 @@ if (! function_exists('render_officer_photo')) {
     }
 
     .pms-list-item-card:hover .pms-list-item-arrow {
-        color: #00ADB5;
+        color: #ff7f23;
         transform: translateX(4px);
     }
 

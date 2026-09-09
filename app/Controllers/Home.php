@@ -115,8 +115,9 @@ class Home extends BaseController
     public function regulatory(): string
     {
         return $this->renderPage('company/regulatory', [
-            'companydata' => $this->companyModel->getCompany(),
-            'companydocs' => $this->companyModel->getCompanyDocs(),
+            'companydata'   => $this->companyModel->getCompany(),
+            'companydocs'   => $this->companyModel->getCompanyDocs(),
+            'annualreports' => $this->companyModel->getAnnualReports(),
         ]);
     }
 

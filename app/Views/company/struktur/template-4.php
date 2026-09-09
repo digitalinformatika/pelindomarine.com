@@ -135,8 +135,8 @@ function render_indented_list_node(array $node, int $depth, bool $isIndo, string
     }
 
     .pms-list-search-input:focus {
-        border-color: #00ADB5;
-        box-shadow: 0 0 0 3px rgba(0, 173, 181, 0.15);
+        border-color: #ff7f23;
+        box-shadow: 0 0 0 3px rgba(255, 127, 35, 0.15);
     }
 
     .pms-indented-list,
@@ -172,15 +172,15 @@ function render_indented_list_node(array $node, int $depth, bool $isIndo, string
     }
 
     .pms-list-item-card:hover {
-        border-color: #00ADB5;
-        box-shadow: 0 6px 18px rgba(0, 173, 181, 0.1);
+        border-color: #ff7f23;
+        box-shadow: 0 6px 18px rgba(255, 127, 35, 0.1);
         transform: translateX(3px);
     }
 
     /* Depth Accents */
     .pms-depth-0 > .pms-list-item-card {
         background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%);
-        border-left: 4px solid #00ADB5;
+        border-left: 4px solid #ff7f23;
     }
 
     .pms-depth-1 > .pms-list-item-card {
@@ -216,7 +216,7 @@ function render_indented_list_node(array $node, int $depth, bool $isIndo, string
     .pms-list-avatar-initials {
         font-size: 14px;
         font-weight: 700;
-        color: #00ADB5;
+        color: #ff7f23;
     }
 
     .pms-list-info {
@@ -228,7 +228,7 @@ function render_indented_list_node(array $node, int $depth, bool $isIndo, string
         display: block;
         font-size: 11.5px;
         font-weight: 700;
-        color: #00828a;
+        color: #ce2c00;
         text-transform: uppercase;
         letter-spacing: 0.3px;
         margin-bottom: 2px;
@@ -254,7 +254,7 @@ function render_indented_list_node(array $node, int $depth, bool $isIndo, string
         background: #f0fdfa;
         border: 1px solid #ccfbf1;
         border-radius: 8px;
-        color: #00828a;
+        color: #ce2c00;
         font-size: 12px;
         font-weight: 600;
         text-decoration: none !important;
@@ -262,9 +262,9 @@ function render_indented_list_node(array $node, int $depth, bool $isIndo, string
     }
 
     .pms-list-btn-profile:hover {
-        background: #00ADB5;
+        background: #ff7f23;
         color: #ffffff;
-        border-color: #00ADB5;
+        border-color: #ff7f23;
     }
 
     @media (max-width: 991px) {

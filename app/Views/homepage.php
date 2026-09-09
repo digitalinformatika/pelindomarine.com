@@ -25,6 +25,9 @@
 				$bImg = base_url('upload/' . $bRel);
 			} elseif (is_file(FCPATH . $bRel)) {
 				$bImg = base_url($bRel);
+			} else {
+				// File upload CMS (shared storage / salin dari repo CMS saat development)
+				$bImg = cms_media_url($bRel, '', true);
 			}
 		}
 		if ($bImg) {

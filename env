@@ -74,5 +74,7 @@
 
 # pelindo.contactEmail = 'info@pelindomarine.com'
 # pelindo.uploadPath = ''
+# Domain CMS tempat file media di-upload; website memanggil <domain>/uploads/<path>
+# pelindo.mediaBaseUrl = 'https://cms.pelindomarine.com'
 # pelindo.geminiApiKey = ''
 # pelindo.chatAdminEmail = ''

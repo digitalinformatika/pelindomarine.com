@@ -22,6 +22,9 @@
 						$wImg = base_url('upload/' . $rel);
 					} elseif (is_file(FCPATH . $rel)) {
 						$wImg = base_url($rel);
+					} else {
+						// File upload CMS (shared storage / salin dari repo CMS saat development)
+						$wImg = cms_media_url($rel, '', true);
 					}
 				}
 				if ($wImg) {

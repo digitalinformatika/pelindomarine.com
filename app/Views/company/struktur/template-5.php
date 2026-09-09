@@ -155,7 +155,7 @@ if (!empty($tierOthers)) {
         display: inline-block;
         padding: 4px 14px;
         background: #f0fdfa;
-        color: #00828a;
+        color: #ce2c00;
         border: 1px solid #ccfbf1;
         border-radius: 20px;
         font-size: 11px;
@@ -211,8 +211,8 @@ if (!empty($tierOthers)) {
 
     .pms-level-card:hover {
         transform: translateY(-4px);
-        border-color: #00ADB5;
-        box-shadow: 0 12px 30px rgba(0, 173, 181, 0.12);
+        border-color: #ff7f23;
+        box-shadow: 0 12px 30px rgba(255, 127, 35, 0.12);
     }
 
     .pms-level-card-photo-wrap {
@@ -237,7 +237,7 @@ if (!empty($tierOthers)) {
     .pms-grid-initials {
         font-size: 24px;
         font-weight: 700;
-        color: #00ADB5;
+        color: #ff7f23;
     }
 
     .pms-level-card-content {
@@ -249,7 +249,7 @@ if (!empty($tierOthers)) {
         display: inline-block;
         font-size: 11px;
         font-weight: 700;
-        color: #00828a;
+        color: #ce2c00;
         text-transform: uppercase;
         letter-spacing: 0.3px;
         margin-bottom: 4px;
@@ -274,7 +274,7 @@ if (!empty($tierOthers)) {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        color: #00ADB5;
+        color: #ff7f23;
         font-size: 12.5px;
         font-weight: 600;
         text-decoration: none !important;
@@ -283,7 +283,7 @@ if (!empty($tierOthers)) {
 
     .pms-level-btn:hover {
         gap: 10px;
-        color: #00828a;
+        color: #ce2c00;
     }
 
     @media (max-width: 991px) {

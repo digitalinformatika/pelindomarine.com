@@ -1,43 +1,36 @@
 <?php
-    $weblangs = session('weblang');
-    if (strval($weblangs) == '') $weblangs = 'english';
-    $isIndo = ($weblangs === 'indonesia');
+	//session language
+	$weblangs = session('weblang');
+	if (strval($weblangs) == "") $weblangs = "english";
+	$isIndo = ($weblangs == 'indonesia');
 
-    // Hero banner configuration
-    $bannerImg = !empty($banner['GAMBAR']) ? struktur_media_url($banner['GAMBAR']) : base_url('upload/about-bgheader.jpg');
-    $heroTitle = $isIndo
-        ? (!empty($banner['JUDUL']) ? $banner['JUDUL'] : 'STRUKTUR ORGANISASI')
-        : (!empty($banner['TITLE']) ? $banner['TITLE'] : 'ORGANIZATION STRUCTURE');
-    $heroSubtitle = $isIndo
-        ? (!empty($banner['SUB_JUDUL']) ? $banner['SUB_JUDUL'] : 'Tentang Kami')
-        : (!empty($banner['SUB_TITLE']) ? $banner['SUB_TITLE'] : 'Company');
-
-    $txtBreadcrumbHome = 'Home';
-    $txtBreadcrumbParent = $isIndo ? 'Tentang Kami' : 'Company';
-    $txtBreadcrumbCurrent = $isIndo ? 'Struktur Organisasi' : 'Organization Structure';
-    $txtSectionSubtitle = $isIndo ? 'Kepemimpinan & Tata Kelola' : 'Leadership & Governance';
-    $txtSectionTitle = $isIndo ? 'Bagan Struktur Organisasi' : 'Organizational Chart';
-    $txtSectionDesc = $isIndo
-        ? 'Struktur tata kelola PT Pelindo Marine Service yang mencerminkan integrasi profesional antara Dewan Komisaris dan Direksi untuk mewujudkan layanan maritim terintegrasi berkelas dunia.'
-        : 'The corporate governance structure of PT Pelindo Marine Service, showcasing the professional alignment between the Board of Commissioners and the Board of Directors to deliver world-class integrated maritime services.';
+	// Hero banner (sementara: jika file banner dari CMS tidak ditemukan, pakai banner halaman About Us)
+	$bannerImg = struktur_banner_url($banner['GAMBAR'] ?? null, base_url('upload/about-bgheader.jpg'));
 ?>
-
 <section id="pms-inner-header" style="background-image: url('<?= esc($bannerImg, 'attr') ?>'); background-size: cover; background-position: center;">
-    <div class="container">
-        <div class="row animate-box breadcumb-box">
-            <div class="col-md-6 col-xs-12">
-                <h5><?= esc($heroSubtitle) ?></h5>
-                <h2><?= esc($heroTitle) ?></h2>
-            </div>
-            <div class="col-md-6 col-xs-12 text-right">
-                <div class="breadcumbs">
-                    <a href="<?= base_url('/') ?>" class="text-light"><?= $txtBreadcrumbHome ?></a> / 
-                    <span><?= $txtBreadcrumbParent ?></span> / 
-                    <b><a href="<?= site_url('company/organization-structure') ?>" class="text-light"><?= $txtBreadcrumbCurrent ?></a></b>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="container">
+		<?php if ($weblangs=='indonesia') { ?>
+		<div class="row animate-box breadcumb-box">
+			<div class="col-md-6 col-xs-12">
+				<h5><?= esc(!empty($banner['SUB_JUDUL']) ? $banner['SUB_JUDUL'] : 'Tentang Kami') ?></h5>
+				<h2><?= esc(!empty($banner['JUDUL']) ? $banner['JUDUL'] : 'STRUKTUR ORGANISASI') ?></h2>
+			</div>
+			<div class="col-md-6 col-xs-12 text-right">
+				<div class="breadcumbs">Home / Tentang Kami / <b><a href="company/organization-structure" class="text-light">Struktur Organisasi</a></b></div>
+			</div>
+		</div>
+		<?php } else { ?>
+		<div class="row animate-box breadcumb-box">
+			<div class="col-md-6 col-xs-12">
+				<h5><?= esc(!empty($banner['SUB_TITLE']) ? $banner['SUB_TITLE'] : 'Company') ?></h5>
+				<h2><?= esc(!empty($banner['TITLE']) ? $banner['TITLE'] : 'ORGANIZATION STRUCTURE') ?></h2>
+			</div>
+			<div class="col-md-6 col-xs-12 text-right">
+				<div class="breadcumbs">Home / Company / <b><a href="company/organization-structure" class="text-light">Organization Structure</a></b></div>
+			</div>
+		</div>
+		<?php } ?>
+	</div>
 </section>
 
 <section id="pms-innerblock">
@@ -45,9 +38,15 @@
         <!-- Header Section -->
         <div class="row mb-5" style="padding: 0 15px 10px;">
             <div class="col-xs-12">
-                <span class="pms-org-badge"><?= esc($txtSectionSubtitle) ?></span>
-                <h3 class="pms-org-main-heading"><?= esc($txtSectionTitle) ?></h3>
-                <p class="pms-org-sub-desc"><?= esc($txtSectionDesc) ?></p>
+                <?php if ($weblangs=='indonesia') { ?>
+                <span class="pms-org-badge">Kepemimpinan & Tata Kelola</span>
+                <h3 class="pms-org-main-heading">Bagan Struktur Organisasi</h3>
+                <p class="pms-org-sub-desc">Struktur tata kelola PT Pelindo Marine Service yang mencerminkan integrasi profesional antara Dewan Komisaris dan Direksi untuk mewujudkan layanan maritim terintegrasi berkelas dunia.</p>
+                <?php } else { ?>
+                <span class="pms-org-badge">Leadership & Governance</span>
+                <h3 class="pms-org-main-heading">Organizational Chart</h3>
+                <p class="pms-org-sub-desc">The corporate governance structure of PT Pelindo Marine Service, showcasing the professional alignment between the Board of Commissioners and the Board of Directors to deliver world-class integrated maritime services.</p>
+                <?php } ?>
                 <div class="pms-org-divider"></div>
             </div>
         </div>
@@ -56,12 +55,12 @@
         <div class="pms-org-toolbar">
             <div class="pms-org-toolbar-left">
                 <span class="pms-org-instruction">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px; color: #00ADB5;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px; color: #ff7f23;">
                         <circle cx="12" cy="12" r="10"></circle>
                         <line x1="12" y1="16" x2="12" y2="12"></line>
                         <line x1="12" y1="8" x2="12.01" y2="8"></line>
                     </svg>
-                    <?= $isIndo ? 'Klik kartu pejabat untuk melihat profil dan riwayat lengkap' : 'Click any officer card to view their full profile and background' ?>
+                    <?php if ($weblangs=='indonesia') { ?>Klik kartu pejabat untuk melihat profil dan riwayat lengkap<?php } else { ?>Click any officer card to view their full profile and background<?php } ?>
                 </span>
             </div>
         </div>
@@ -93,8 +92,8 @@
     .pms-org-badge {
         display: inline-block;
         padding: 6px 16px;
-        background: rgba(0, 173, 181, 0.1);
-        color: #00828a;
+        background: rgba(255, 127, 35, 0.1);
+        color: #ce2c00;
         font-size: 12px;
         font-weight: 700;
         text-transform: uppercase;
@@ -123,7 +122,7 @@
     .pms-org-divider {
         width: 60px;
         height: 3px;
-        background: linear-gradient(90deg, #00ADB5, #204280);
+        background: linear-gradient(90deg, #ff7f23, #204280);
         margin: 0 0 10px 0;
         border-radius: 2px;
     }
@@ -161,9 +160,9 @@
         border-radius: 20px;
         font-size: 12px;
         font-weight: 600;
-        color: #00828a;
-        background: rgba(0, 173, 181, 0.08);
-        border: 1px solid rgba(0, 173, 181, 0.25);
+        color: #ce2c00;
+        background: rgba(255, 127, 35, 0.08);
+        border: 1px solid rgba(255, 127, 35, 0.25);
     }
 
     .pms-org-canvas-wrap {

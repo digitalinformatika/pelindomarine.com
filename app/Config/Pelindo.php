@@ -22,6 +22,15 @@ class Pelindo extends BaseConfig
      */
     public string $uploadPath = '';
 
+    /**
+     * Domain CMS tempat file media (banner, foto pejabat, dokumen, dsb.)
+     * di-upload. Bila diisi, website memuat file yang tidak ada di folder
+     * public/uploads miliknya dari <mediaBaseUrl>/uploads/<path>.
+     * Contoh: pelindo.mediaBaseUrl = https://cms.pelindomarine.com
+     * Kosong = hanya folder lokal (development: otomatis salin dari repo CMS).
+     */
+    public string $mediaBaseUrl = '';
+
     /** Penerima notifikasi form E-PPID (dipisah koma) */
     public string $ppidRecipients = '';
 
@@ -76,6 +85,7 @@ class Pelindo extends BaseConfig
             $this->uploadPath = FCPATH . 'upload';
         }
 
-        $this->uploadPath = rtrim($this->uploadPath, '/\\');
+        $this->uploadPath   = rtrim($this->uploadPath, '/\\');
+        $this->mediaBaseUrl = rtrim(trim($this->mediaBaseUrl), '/');
     }
 }

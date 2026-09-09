@@ -154,8 +154,8 @@ function render_horizontal_node(array $node, bool $isIndo, string $txtViewProfil
 
     .pms-h-card:hover {
         transform: translateX(4px);
-        border-color: #00ADB5;
-        box-shadow: 0 8px 24px rgba(0, 173, 181, 0.15);
+        border-color: #ff7f23;
+        box-shadow: 0 8px 24px rgba(255, 127, 35, 0.15);
     }
 
     .pms-h-avatar-wrap {
@@ -179,7 +179,7 @@ function render_horizontal_node(array $node, bool $isIndo, string $txtViewProfil
     .pms-h-avatar-initials {
         font-size: 14px;
         font-weight: 700;
-        color: #00ADB5;
+        color: #ff7f23;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -196,7 +196,7 @@ function render_horizontal_node(array $node, bool $isIndo, string $txtViewProfil
         display: block;
         font-size: 11px;
         font-weight: 700;
-        color: #00828a;
+        color: #ce2c00;
         text-transform: uppercase;
         letter-spacing: 0.3px;
         white-space: nowrap;
@@ -224,7 +224,7 @@ function render_horizontal_node(array $node, bool $isIndo, string $txtViewProfil
     }
 
     .pms-h-card:hover .pms-h-link {
-        color: #00ADB5;
+        color: #ff7f23;
     }
 
     /* Horizontal Connectors */
