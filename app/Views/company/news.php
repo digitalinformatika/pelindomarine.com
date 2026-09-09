@@ -53,10 +53,11 @@
 		</div>
 		<div class="col-md-6 col-12">
 			<?php
-				if (!file_exists("upload/news/".$t['LINK_FILE'])) $gambar = "upload/news/nopic.png";
-				if (file_exists("main/uploads/informasi/".$t['LINK_FILE'])) $gambar = "main/uploads/informasi/".$t['LINK_FILE'];
+				// Gambar berita: upload CMS (folder informasi) atau file lama, cadangan nopic
+				$nopic  = base_url('upload/news/nopic.png');
+				$gambar = media_img_url($t['LINK_FILE'] ?? null, 'informasi', ['upload/news', 'main/uploads/informasi'], $nopic);
 			?>
-			<img src="<?php echo $gambar; ?>" alt="" title="" class="img-fluid">
+			<img src="<?php echo esc($gambar); ?>" alt="" title="" class="img-fluid" <?= img_fallback_attr($nopic) ?>>
 		</div>
 		<?php } ?>
 	</div>
@@ -71,12 +72,11 @@
 		<div class="col-md-4 col-6 mb-5">
 			<div class="boxed-news">
 				<?php
-					if (!file_exists("upload/news/".$n['LINK_FILE'])) $gambar = "upload/news/nopic.png";
-					//if (file_exists("upload/news/".$n['LINK_FILE'])) $gambar = "upload/news/".$n['LINK_FILE'];
-					if (file_exists("main/uploads/informasi/".$n['LINK_FILE'])) $gambar = "main/uploads/informasi/".$n['LINK_FILE'];
+					$nopic  = base_url('upload/news/nopic.png');
+					$gambar = media_img_url($n['LINK_FILE'] ?? null, 'informasi', ['upload/news', 'main/uploads/informasi'], $nopic);
 				?>
 				<div class="wrapimg">
-					<img src="https://pelindomarine.com/main/uploads/informasi/<?php echo $n['LINK_FILE']; ?>" alt="" title="" class="img-fluid">
+					<img src="<?php echo esc($gambar); ?>" alt="" title="" class="img-fluid" <?= img_fallback_attr($nopic) ?>>
 				</div>
 				<div class="shortdesc-box">
 					<a href="<?php echo $gambar; ?>" class="linksnews2"><div class="titlenews2"><?= (($weblangs=='indonesia') ? htmlspecialchars_decode($n['NAMA'], ENT_QUOTES) : htmlspecialchars_decode($n['TITLE'], ENT_QUOTES));?></div></a>

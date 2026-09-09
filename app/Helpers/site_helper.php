@@ -146,6 +146,127 @@ if (! function_exists('struktur_banner_url')) {
     }
 }
 
+if (! function_exists('struktur_banner_css')) {
+    /**
+     * Nilai CSS background-image untuk banner: gambar CMS di lapisan depan,
+     * gambar cadangan di lapisan belakang. Bila file CMS gagal dimuat
+     * (mis. 404 di domain CMS), browser tetap menampilkan gambar cadangan.
+     *
+     * Contoh hasil: url('https://cms/uploads/x.jpg'), url('https://web/upload/about-bgheader.jpg')
+     */
+    function struktur_banner_css(?string $filename, ?string $fallbackUrl = null): string
+    {
+        $fallbackUrl ??= base_url('upload/about-bgheader.jpg');
+        $primary       = struktur_banner_url($filename, $fallbackUrl);
+
+        $layers = [$primary];
+        if ($primary !== $fallbackUrl) {
+            $layers[] = $fallbackUrl;
+        }
+
+        return implode(', ', array_map(static fn (string $u) => "url('" . esc($u, 'attr') . "')", $layers));
+    }
+}
+
+if (! function_exists('media_img_url')) {
+    /**
+     * URL gambar untuk modul yang punya file warisan website lama DAN upload
+     * baru lewat CMS (berita, kapal, dsb). Nilai kolom di database bisa berupa
+     * path lama ("news/news_684.jpg") maupun path CMS ("2026/09/abc.jpg").
+     *
+     * Urutan pencarian:
+     *  1. public/uploads/<module>/<rel>        (upload CMS, shared storage)
+     *  2. public/<legacyDir>/<rel> dan public/<legacyDir>/<basename>  (file lama)
+     *  3. <pelindo.mediaBaseUrl>/uploads/<module>/<rel>  (domain CMS, production)
+     *  4. repo CMS di sebelah repo ini          (development lokal, disalin)
+     *  5. $fallback
+     *
+     * @param list<string> $legacyDirs folder lama relatif public/, mis. ['upload/news', 'main/uploads/informasi']
+     */
+    function media_img_url(?string $rel, string $module, array $legacyDirs = [], ?string $fallback = null): ?string
+    {
+        if ($rel === null || trim($rel) === '') {
+            return $fallback;
+        }
+
+        $rel    = ltrim(trim($rel), '/\\');
+        $module = trim($module, '/');
+
+        if (str_starts_with($rel, 'http://') || str_starts_with($rel, 'https://')) {
+            return $rel;
+        }
+
+        // 1. upload CMS di folder website
+        foreach (array_filter(['uploads/' . $module . '/' . $rel, 'uploads/' . $rel]) as $p) {
+            if (is_file(FCPATH . $p)) {
+                return base_url($p);
+            }
+        }
+
+        // 2. file warisan website lama
+        $base = basename($rel);
+        foreach ($legacyDirs as $dir) {
+            $dir = trim($dir, '/');
+            foreach (array_unique([$dir . '/' . $rel, $dir . '/' . $base]) as $p) {
+                if (is_file(FCPATH . $p)) {
+                    return base_url($p);
+                }
+            }
+        }
+
+        // 3. production: domain CMS.
+        //    Upload CMS selalu berpola "YYYY/MM/nama" -> /uploads/<module>/...
+        //    Selain itu berarti file warisan website lama -> /main/uploads/<module>/...
+        //    (dilayani route FileServer::mainUploads di CMS).
+        if (cms_media_base() !== '') {
+            $isCmsUpload = (bool) preg_match('#^\d{4}/\d{2}/#', $rel);
+
+            return cms_media_base() . ($isCmsUpload ? '/uploads/' : '/main/uploads/') . $module . '/' . $rel;
+        }
+
+        // 4. development lokal: salin dari repo CMS (upload baru) atau dari
+        //    repo website lama di sebelah repo ini (file warisan).
+        $repoRoot = dirname(FCPATH, 2) . DIRECTORY_SEPARATOR;
+        $sources  = [
+            [$repoRoot . 'cms.pelindomarine.com/public/uploads/' . $module . '/' . $rel, 'uploads/' . $module . '/' . $rel],
+        ];
+        foreach ($legacyDirs as $dir) {
+            $dir = trim($dir, '/');
+            // Disalin ke public/uploads/<module>/ (diabaikan git), bukan ke public/upload/ yang ikut repo
+            foreach (array_unique([$dir . '/' . $rel, $dir . '/' . $base]) as $p) {
+                $sources[] = [$repoRoot . 'website-pms-gcp/' . $p, 'uploads/' . $module . '/' . $rel];
+            }
+        }
+        foreach ($sources as [$src, $relDest]) {
+            if (! is_file($src)) {
+                continue;
+            }
+            $dest = FCPATH . str_replace('/', DIRECTORY_SEPARATOR, $relDest);
+            if (! is_dir(dirname($dest))) {
+                @mkdir(dirname($dest), 0775, true);
+            }
+            if (! is_file($dest)) {
+                @copy($src, $dest);
+            }
+
+            return base_url($relDest);
+        }
+
+        return $fallback;
+    }
+}
+
+if (! function_exists('img_fallback_attr')) {
+    /**
+     * Atribut onerror untuk <img>: bila gambar gagal dimuat (mis. 404 di
+     * domain CMS), ganti ke gambar cadangan sekali saja.
+     */
+    function img_fallback_attr(string $fallbackUrl): string
+    {
+        return 'onerror="this.onerror=null;this.src=\'' . esc($fallbackUrl, 'attr') . '\';"';
+    }
+}
+
 if (! function_exists('cms_media_url')) {
     /**
      * URL publik file yang di-upload lewat modul CMS (kolom path relatif

@@ -96,7 +96,7 @@
 						</div>
 						<div class="pms-annual-cover">
 							<?php if ($arCover) { ?>
-							<img src="<?php echo esc($arCover); ?>" alt="<?php echo esc($arLabel . ' ' . $ar['tahun']); ?>" title="">
+							<img src="<?php echo esc($arCover); ?>" alt="<?php echo esc($arLabel . ' ' . $ar['tahun']); ?>" title="" onerror="this.onerror=null;this.style.display='none';">
 							<?php } ?>
 							<div class="pms-annual-download">
 								<a href="<?php echo esc($arLink); ?>" target="_blank" class="btnorg btneye"><img src="images/idownload.png" width="15"> <?php echo $isIndo ? 'Unduh' : 'Download'; ?></a>

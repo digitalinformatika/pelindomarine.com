@@ -24,10 +24,11 @@
 				<h4 class="themeblue titlenewsdet"><?= ($weblangs=='english' && !empty($newsdetail['TITLE'])) ? htmlspecialchars_decode($newsdetail['TITLE'], ENT_QUOTES) : htmlspecialchars_decode($newsdetail['NAMA'], ENT_QUOTES);?></h4>
 				<div class="datenews"><?php echo date('l, d M Y', strtotime($newsdetail['TANGGAL'])); ?></div>
 				<?php
-					if (!file_exists("upload/news/".$newsdetail['LINK_FILE'])) $gambar = "upload/news/nopic.png";
-					if (file_exists("main/uploads/informasi/".$newsdetail['LINK_FILE'])) $gambar = "main/uploads/informasi/".$newsdetail['LINK_FILE'];
+					// Gambar berita: upload CMS (folder informasi) atau file lama, cadangan nopic
+					$nopic  = base_url('upload/news/nopic.png');
+					$gambar = media_img_url($newsdetail['LINK_FILE'] ?? null, 'informasi', ['upload/news', 'main/uploads/informasi'], $nopic);
 				?>
-				<img src="<?php echo $gambar; ?>" alt="" title="" class="img-fluid">
+				<img src="<?php echo esc($gambar); ?>" alt="" title="" class="img-fluid" <?= img_fallback_attr($nopic) ?>>
 				<div class="row">
 					<div class="col-md-3 mt-5">
 						<?php if ($weblangs=='english') { ?>Share this news<br><?php } ?>
@@ -79,13 +80,13 @@
 					$headline = htmlspecialchars_decode($n['NAMA'], ENT_QUOTES);
 					if ($weblangs=='english' && !empty($n['TITLE'])) $headline = htmlspecialchars_decode($n['TITLE'], ENT_QUOTES);
 
-					if (!file_exists("upload/news/".$n['LINK_FILE'])) $thumb = "upload/news/nopic.png";
-					if (file_exists("main/uploads/informasi/".$n['LINK_FILE'])) $thumb = "main/uploads/informasi/".$n['LINK_FILE'];
+					$nopic = base_url('upload/news/nopic.png');
+					$thumb = media_img_url($n['LINK_FILE'] ?? null, 'informasi', ['upload/news', 'main/uploads/informasi'], $nopic);
 			?>
 			<div class="col-md-4 col-sm-6 col-12 mb-4">
 				<a href="company/readnews/<?php echo $n['INFORMASI_ID']; ?>" class="othernews-card">
 					<div class="othernews-thumb">
-						<img src="<?php echo $thumb; ?>" alt="<?php echo strip_tags($headline); ?>" class="img-fluid">
+						<img src="<?php echo esc($thumb); ?>" alt="<?php echo strip_tags($headline); ?>" class="img-fluid" <?= img_fallback_attr($nopic) ?>>
 					</div>
 					<div class="othernews-body">
 						<div class="othernews-date"><?php echo date('d M Y', strtotime($n['TANGGAL'])); ?></div>

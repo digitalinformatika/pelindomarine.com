@@ -38,13 +38,13 @@
 	$bannerCount = count($activeBanners);
 	$fallbackBg = base_url('upload/homepage/p-mainimage.jpg');
 ?>
-	<section id="pms-welcome" class="js-fullheight" style="position: relative; overflow: hidden; background-color: #0b192c; <?php if ($bannerCount <= 1) { ?>background-image: url('<?php echo $bannerCount === 1 ? $activeBanners[0]['resolved_img'] : $fallbackBg; ?>'); background-size: cover; background-position: center;<?php } ?>" data-next="yes">
+	<section id="pms-welcome" class="js-fullheight" style="position: relative; overflow: hidden; background-color: #0b192c; <?php if ($bannerCount <= 1) { ?>background-image: <?php echo $bannerCount === 1 ? "url('" . esc($activeBanners[0]['resolved_img'], 'attr') . "'), " : ''; ?>url('<?php echo esc($fallbackBg, 'attr'); ?>'); background-size: cover; background-position: center;<?php } ?>" data-next="yes">
 
 		<?php if ($bannerCount > 1) { ?>
 		<!-- Hero Slider Background (Otomatis Slide, Tanpa Tombol Navigasi) -->
 		<div class="pms-hero-slider-wrap" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; overflow: hidden; z-index: 1;">
 			<?php foreach ($activeBanners as $idx => $b) { ?>
-				<div class="pms-hero-slide" data-duration="<?php echo (int) ($b['durasi'] ?? 5); ?>" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('<?php echo $b['resolved_img']; ?>'); background-size: cover; background-position: center; background-repeat: no-repeat; opacity: <?php echo $idx === 0 ? '1' : '0'; ?>; transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1); will-change: opacity;">
+				<div class="pms-hero-slide" data-duration="<?php echo (int) ($b['durasi'] ?? 5); ?>" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('<?php echo esc($b['resolved_img'], 'attr'); ?>'), url('<?php echo esc($fallbackBg, 'attr'); ?>'); background-size: cover; background-position: center; background-repeat: no-repeat; opacity: <?php echo $idx === 0 ? '1' : '0'; ?>; transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1); will-change: opacity;">
 					<?php if (!empty($b['url'])) { ?>
 						<a href="<?php echo esc($b['url'], 'attr'); ?>" target="<?php echo !empty($b['is_new_tab']) ? '_blank' : '_self'; ?>" rel="noopener" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; z-index: 2; text-indent: -9999px;">Banner Link</a>
 					<?php } ?>
@@ -579,11 +579,12 @@
 				<?php foreach ($homenews as $n) { ?>
 				<div class="col-md-3 col-6 mb-5">
 					<?php
-						if (!file_exists("upload/news/".$n['LINK_FILE'])) $gambar = "upload/news/nopic.png";
-                        if (file_exists("main/uploads/informasi/".$n['LINK_FILE'])) $gambar = "main/uploads/informasi/".$n['LINK_FILE'];
+						// Gambar berita: upload CMS (folder informasi) atau file lama, cadangan nopic
+						$nopic  = base_url('upload/news/nopic.png');
+						$gambar = media_img_url($n['LINK_FILE'] ?? null, 'informasi', ['upload/news', 'main/uploads/informasi'], $nopic);
 					?>
 					<div class="swrapimg">
-						<img src="<?php echo $gambar; ?>" alt="" title="" class="img-fluid">
+						<img src="<?php echo esc($gambar); ?>" alt="" title="" class="img-fluid" <?= img_fallback_attr($nopic) ?>>
 					</div>
 					<div class="news-desc">
 						<h6><a href="company/readnews/<?php echo $n['INFORMASI_ID']; ?>" class="postlink"><?= (($weblangs=='indonesia') ? htmlspecialchars_decode($n['NAMA'], ENT_QUOTES) : htmlspecialchars_decode($n['TITLE'], ENT_QUOTES)); ?></a></h6>

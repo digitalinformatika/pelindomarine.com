@@ -5,9 +5,10 @@
 	$isIndo = ($weblangs == 'indonesia');
 
 	// Hero banner (sementara: jika file banner dari CMS tidak ditemukan, pakai banner halaman About Us)
-	$bannerImg = struktur_banner_url($banner['GAMBAR'] ?? null, base_url('upload/about-bgheader.jpg'));
+	// Dua lapisan: banner CMS di depan, gambar cadangan di belakang (tampil bila banner CMS gagal dimuat)
+	$bannerCss = struktur_banner_css($banner['GAMBAR'] ?? null, base_url('upload/about-bgheader.jpg'));
 ?>
-<section id="pms-inner-header" style="background-image: url('<?= esc($bannerImg, 'attr') ?>'); background-size: cover; background-position: center;">
+<section id="pms-inner-header" style="background-image: <?= $bannerCss ?>; background-size: cover; background-position: center;">
 	<div class="container">
 		<?php if ($weblangs=='indonesia') { ?>
 		<div class="row animate-box breadcumb-box">

@@ -15,7 +15,8 @@
 	$profilSlug = !empty($template['SLUG']) ? trim($template['SLUG']) : 'profil-1';
 
 	// Hero banner (sementara: jika file banner dari CMS tidak ditemukan, pakai banner halaman About Us)
-	$bannerImg = struktur_banner_url($banner['GAMBAR'] ?? null, base_url('upload/about-bgheader.jpg'));
+	// Dua lapisan: banner CMS di depan, gambar cadangan di belakang (tampil bila banner CMS gagal dimuat)
+	$bannerCss = struktur_banner_css($banner['GAMBAR'] ?? null, base_url('upload/about-bgheader.jpg'));
 
 	// Foto: dari CMS, fallback ke banner board website lama
 	$legacyPhotos = [
@@ -97,7 +98,7 @@
 	$txtProfile   = $isIndo ? 'Profil' : 'Profile';
 	$txtEmpty     = $isIndo ? 'Informasi detail profil pejabat ini dapat diperbarui melalui CMS.' : 'Detailed biographical sections for this officer can be maintained via CMS.';
 ?>
-<section id="pms-inner-header" style="background-image: url('<?= esc($bannerImg, 'attr') ?>'); background-size: cover; background-position: center;">
+<section id="pms-inner-header" style="background-image: <?= $bannerCss ?>; background-size: cover; background-position: center;">
 	<div class="container">
 		<?php if ($weblangs=='indonesia') { ?>
 		<div class="row animate-box breadcumb-box">
@@ -127,7 +128,7 @@
 	<div class="container animate-box pms-prof-container">
 
 		<!-- ================= Kartu identitas pejabat ================= -->
-		<div class="pms-prof-hero" style="background-image: url('<?= esc($bannerImg) ?>');">
+		<div class="pms-prof-hero" style="background-image: <?= $bannerCss ?>;">
 			<div class="pms-prof-hero-bg"></div>
 			<div class="pms-prof-hero-inner">
 				<div class="pms-prof-portrait">

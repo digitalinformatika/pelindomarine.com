@@ -179,11 +179,11 @@
                      <a href="#popup<?php echo $popid; ?>" class="open-popup-link">
                      <div class="vessel-item">
                         <?php
-                           if (!file_exists("upload/".$b['LINK_FILE'])) $gambar = "upload/news/nopic.png";
-                           if (file_exists("upload/vessels/".$b['LINK_FILE'])) $gambar = "upload/vessels/".$b['LINK_FILE'];
-                           if (file_exists("main/uploads/kapal/".$b['LINK_FILE'])) $gambar = "main/uploads/vessels/".$b['LINK_FILE'];
+                           // Foto kapal: upload CMS (folder kapal) atau file lama, cadangan nopic
+                           $nopic  = base_url('upload/news/nopic.png');
+                           $gambar = media_img_url($b['LINK_FILE'], 'kapal', ['upload', 'upload/vessels', 'main/uploads/kapal', 'main/uploads/vessels'], $nopic);
                         ?>
-                        <div class="wrapimg"><img src="<?php echo base_url('/'); ?><?php echo $gambar; ?>" alt="" title="" class="imgwrap"></div>
+                        <div class="wrapimg"><img src="<?php echo esc($gambar); ?>" alt="" title="" class="imgwrap" <?= img_fallback_attr($nopic) ?>></div>
                         <div class="tdpadding">
                            <div class="biry36 fbold mb-2"><?php echo $b['VESSEL_NAME']; ?></div>
                            <div class="robo24">Tug Boat</div>
@@ -311,11 +311,11 @@
                      <a href="#popup<?php echo $popid; ?>" class="open-popup-link">
                      <div class="vessel-item">
                         <?php
-                           if (!file_exists("upload/".$b['LINK_FILE'])) $gambar = "upload/news/nopic.png";
-                           if (file_exists("upload/vessels/".$b['LINK_FILE'])) $gambar = "upload/vessels/".$b['LINK_FILE'];
-                           if (file_exists("main/uploads/kapal/".$b['LINK_FILE'])) $gambar = "main/uploads/vessels/".$b['LINK_FILE'];
+                           // Foto kapal: upload CMS (folder kapal) atau file lama, cadangan nopic
+                           $nopic  = base_url('upload/news/nopic.png');
+                           $gambar = media_img_url($b['LINK_FILE'], 'kapal', ['upload', 'upload/vessels', 'main/uploads/kapal', 'main/uploads/vessels'], $nopic);
                         ?>
-                        <div class="wrapimg"><img src="<?php echo base_url('/'); ?><?php echo $gambar; ?>" alt="" title="" class="imgwrap"></div>
+                        <div class="wrapimg"><img src="<?php echo esc($gambar); ?>" alt="" title="" class="imgwrap" <?= img_fallback_attr($nopic) ?>></div>
                         <div class="tdpadding">
                            <div class="biry36 fbold mb-2"><?php echo $b['VESSEL_NAME']; ?></div>
                            <div class="robo24">Tug Boat</div>
@@ -442,11 +442,10 @@
                   <a href="#popup<?php echo $popid; ?>" class="open-popup-link">
                   <div class="vessel-item">
                      <?php
-                        if (!file_exists("upload/".$b['LINK_FILE'])) $gambar = "upload/news/nopic.png";
-                        if (file_exists("upload/vessels/".$b['LINK_FILE'])) $gambar = "upload/vessels/".$b['LINK_FILE'];
-                        if (file_exists("main/uploads/kapal/".$b['LINK_FILE'])) $gambar = "main/uploads/vessels/".$b['LINK_FILE'];
+                        $nopic  = base_url('upload/news/nopic.png');
+                        $gambar = media_img_url($b['LINK_FILE'], 'kapal', ['upload', 'upload/vessels', 'main/uploads/kapal', 'main/uploads/vessels'], $nopic);
                      ?>
-                     <div class="wrapimg"><img src="<?php echo base_url('/'); ?><?php echo $gambar; ?>" alt="" title="" class="imgwrap"></div>
+                     <div class="wrapimg"><img src="<?php echo esc($gambar); ?>" alt="" title="" class="imgwrap" <?= img_fallback_attr($nopic) ?>></div>
                      <div class="tdpadding">
                         <div class="biry36 fbold mb-2"><?php echo $b['VESSEL_NAME']; ?></div>
                         <div class="robo24">Tug Boat</div>

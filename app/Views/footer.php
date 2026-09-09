@@ -862,7 +862,7 @@
 						<div class="pms-popup-slide-item <?php echo $idx === 0 ? 'active' : ''; ?>" data-index="<?php echo $idx; ?>">
 							<?php if ($hasUrl) { ?>
 								<a href="<?php echo esc($popup['url'], 'attr'); ?>" target="<?php echo $targetBlank; ?>" rel="noopener" class="pms-popup-img-wrap">
-									<img src="<?php echo $popup['resolved_img']; ?>" alt="<?php echo esc($popTitle ?: 'Pelindo Marines Welcome'); ?>" class="img-fluid">
+									<img src="<?php echo esc($popup['resolved_img']); ?>" alt="<?php echo esc($popTitle ?: 'Pelindo Marines Welcome'); ?>" class="img-fluid" onerror="pmsPopupImgFailed(this)">
 									<span class="pms-popup-cta-badge">
 										<?php echo $txtVisit; ?>
 										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -873,7 +873,7 @@
 								</a>
 							<?php } else { ?>
 								<div class="pms-popup-img-wrap">
-									<img src="<?php echo $popup['resolved_img']; ?>" alt="<?php echo esc($popTitle ?: 'Pelindo Marines Welcome'); ?>" class="img-fluid">
+									<img src="<?php echo esc($popup['resolved_img']); ?>" alt="<?php echo esc($popTitle ?: 'Pelindo Marines Welcome'); ?>" class="img-fluid" onerror="pmsPopupImgFailed(this)">
 								</div>
 							<?php } ?>
 
@@ -1115,6 +1115,25 @@
       var pmsCurrentPopup = 0;
       var pmsPopupTotal = <?php echo count($activeWelcomePopups); ?>;
 
+      // Gambar popup gagal dimuat (mis. file tidak ada di domain CMS):
+      // buang slide-nya; bila tidak ada slide tersisa, popup tidak ditampilkan.
+      function pmsPopupImgFailed(img) {
+        var slide = img.closest('.pms-popup-slide-item');
+        if (!slide) return;
+        var idx = parseInt(slide.getAttribute('data-index') || '0', 10);
+        slide.parentNode.removeChild(slide);
+        var dots = document.querySelectorAll('.pms-submarine-dot');
+        if (dots[idx]) dots[idx].parentNode.removeChild(dots[idx]);
+        var slides = document.querySelectorAll('.pms-popup-slide-item');
+        pmsPopupTotal = slides.length;
+        for (var i = 0; i < slides.length; i++) slides[i].setAttribute('data-index', i);
+        if (slides.length === 0) {
+          if (window.jQuery) jQuery('#gettrial').modal('hide');
+        } else {
+          pmsGoPopup(0);
+        }
+      }
+
       function pmsGoPopup(targetIdx) {
         var slides = document.querySelectorAll('.pms-popup-slide-item');
         var dots = document.querySelectorAll('.pms-submarine-dot');
@@ -1174,8 +1193,10 @@
         }
 
         if (!isHidden) {
-          setTimeout(function () { 
-            $("#gettrial").modal('show'); 
+          setTimeout(function () {
+            // Jangan tampilkan bila semua gambar popup gagal dimuat
+            if (document.querySelectorAll('.pms-popup-slide-item').length === 0) return;
+            $("#gettrial").modal('show');
           }, 800);
         }
 
