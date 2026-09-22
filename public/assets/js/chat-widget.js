@@ -6,7 +6,7 @@
     'use strict';
 
     var EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    var LOGO = 'images/logo-chatbot.png';
+    var LOGO = 'images/logo-marine-chat.png';
 
     var COPY = {
         id: {

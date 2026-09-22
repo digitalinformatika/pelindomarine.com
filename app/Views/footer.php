@@ -225,469 +225,299 @@
 	?>
 	<!-- Maritime Submarine Welcome Screen Modal -->
 	<style>
-		/* Prevent layout shift caused by Bootstrap modal scrollbar padding */
+		/* ============================================================
+		   PMS Welcome Popup — kartu tunggal, ukuran konsisten antar slide
+		   ============================================================ */
+		#gettrial {
+			/* Palet brand PMS: oranye #ff8600 & navy #204280 (lihat ptpms.css) */
+			--pms-accent: #ff8600;
+			--pms-accent-dark: #e57600;
+			--pms-navy: #204280;
+			--pms-ink: #1d3d7a;
+			--pms-muted: #64748b;
+			--pms-line: #e8edf3;
+		}
+
+		/* Cegah layout shift akibat padding scrollbar bawaan Bootstrap */
 		body.modal-open {
 			padding-right: 0 !important;
 			padding-left: 0 !important;
 			overflow: hidden !important;
 		}
 
-		/* Transparent modal backdrop with subtle thin blur (opacity ~0, site remains visible) */
-		.modal-backdrop {
+		/* Backdrop ditangani sendiri lewat #gettrial agar bisa blur halus */
+		.modal-backdrop,
+		.modal-backdrop.show {
 			background-color: transparent !important;
 			opacity: 0 !important;
 		}
 
-		.modal-backdrop.show {
-			opacity: 0 !important;
-		}
-
 		#gettrial.modal {
-			background: rgba(255, 255, 255, 0.03) !important;
-			backdrop-filter: blur(5px) !important;
-			-webkit-backdrop-filter: blur(5px) !important;
-			padding-left: 0 !important;
-			padding-right: 0 !important;
+			background: rgba(16, 32, 62, 0.45) !important;
+			backdrop-filter: blur(6px) saturate(115%) !important;
+			-webkit-backdrop-filter: blur(6px) saturate(115%) !important;
+			padding: 0 !important;
 			margin: 0 !important;
-			transition: backdrop-filter 0.3s ease;
 		}
 
 		#gettrial .modal-dialog {
-			max-width: fit-content;
-			width: auto;
+			width: 100%;
+			max-width: 470px;
 			margin: 1.5rem auto !important;
+			padding: 0 16px;
+			min-height: calc(100% - 3rem);
 			display: flex !important;
 			align-items: center !important;
 			justify-content: center !important;
-			transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+			transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
 		}
 
 		#gettrial.modal.fade .modal-dialog {
-			transform: scale(0.92) translateY(20px);
+			transform: scale(0.96) translateY(18px);
 			opacity: 0;
 		}
 
 		#gettrial.modal.show .modal-dialog {
-			transform: scale(1) translateY(0);
+			transform: none;
 			opacity: 1;
 		}
 
-		/* Floating white card with modern crisp styling, adaptive to portrait & landscape */
 		.pms-submarine-card {
-			width: fit-content;
-			max-width: min(860px, 92vw);
-			margin: 0 auto;
+			width: 100%;
 			background: #ffffff !important;
-			border: 1px solid rgba(0, 0, 0, 0.08) !important;
-			border-radius: 22px !important;
-			box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.18), 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+			border: 1px solid rgba(15, 23, 42, 0.07) !important;
+			border-radius: 18px !important;
+			box-shadow: 0 24px 60px -18px rgba(8, 20, 35, 0.45), 0 6px 18px -8px rgba(8, 20, 35, 0.2) !important;
 			position: relative;
 			overflow: hidden;
-			color: #0f172a !important;
+			color: var(--pms-ink) !important;
 			padding: 0;
 		}
 
+		/* ---------- Tombol tutup ---------- */
 		.pms-submarine-close-btn {
 			position: absolute;
-			top: 14px;
-			right: 14px;
-			width: 38px;
-			height: 38px;
+			top: 12px;
+			right: 12px;
+			width: 34px;
+			height: 34px;
 			border-radius: 50%;
-			background: rgba(255, 255, 255, 0.92) !important;
-			backdrop-filter: blur(8px);
-			-webkit-backdrop-filter: blur(8px);
-			border: 1px solid rgba(0, 0, 0, 0.12) !important;
-			color: #475569 !important;
+			background: rgba(15, 23, 42, 0.45) !important;
+			backdrop-filter: blur(6px);
+			-webkit-backdrop-filter: blur(6px);
+			border: 0 !important;
+			color: #ffffff !important;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			cursor: pointer;
 			z-index: 30;
-			transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-			outline: none;
 			padding: 0;
-			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15) !important;
+			outline: none;
+			box-shadow: none !important;
+			transition: background 0.2s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 		}
 
-		.pms-submarine-close-btn:hover {
-			background: #ffffff !important;
-			color: #00ADB5 !important;
-			transform: rotate(90deg) scale(1.1);
-			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+		.pms-submarine-close-btn:hover,
+		.pms-submarine-close-btn:focus-visible {
+			background: var(--pms-accent) !important;
+			color: #ffffff !important;
+			transform: rotate(90deg);
 		}
 
+		/* ---------- Area gambar ---------- */
 		.pms-popup-slider-container {
 			position: relative;
-			overflow: hidden;
 			width: 100%;
-			min-height: 200px;
 			background: transparent;
 		}
 
 		.pms-popup-slide-item {
 			display: none;
 			width: 100%;
-			text-align: center;
-			animation: pmsFadeIn 0.4s ease-out forwards;
 		}
 
 		.pms-popup-slide-item.active {
 			display: block;
+			animation: pmsFadeIn 0.35s ease-out both;
 		}
 
 		@keyframes pmsFadeIn {
-			from { opacity: 0; transform: scale(0.985); }
-			to { opacity: 1; transform: scale(1); }
+			from { opacity: 0; }
+			to { opacity: 1; }
 		}
 
 		.pms-popup-img-wrap {
 			position: relative;
-			display: block;
-			max-height: 78vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 100%;
+			height: clamp(280px, 52vh, 480px);
 			overflow: hidden;
-			background: transparent;
+			background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
 			text-decoration: none;
 		}
 
 		.pms-popup-img-wrap img {
-			max-height: 78vh;
-			width: auto;
 			max-width: 100%;
-			margin: 0 auto;
+			max-height: 100%;
+			width: auto;
+			height: auto;
 			display: block;
 			object-fit: contain;
+			transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 		}
 
-		.pms-popup-img-wrap:hover img {
-			transform: none !important;
+		a.pms-popup-img-wrap:hover img {
+			transform: scale(1.025);
 		}
 
+		/* Penanda halus di kanan bawah gambar bahwa slide ini bisa diklik */
 		.pms-popup-cta-badge {
 			position: absolute;
-			bottom: 14px;
-			right: 16px;
-			background: rgba(11, 28, 51, 0.85);
-			border: 1px solid rgba(0, 173, 181, 0.6);
-			backdrop-filter: blur(8px);
-			-webkit-backdrop-filter: blur(8px);
-			color: #00e1d9;
-			padding: 7px 18px;
-			border-radius: 30px;
-			font-size: 12.5px;
-			font-weight: 600;
-			letter-spacing: 0.5px;
+			bottom: 10px;
+			right: 12px;
+			background: rgba(32, 66, 128, 0.62);
+			backdrop-filter: blur(5px);
+			-webkit-backdrop-filter: blur(5px);
+			color: rgba(255, 255, 255, 0.95);
+			padding: 4px 10px;
+			border-radius: 999px;
+			font-size: 11px;
+			font-weight: 500;
+			letter-spacing: 0.3px;
+			line-height: 1.3;
 			display: inline-flex;
 			align-items: center;
-			gap: 6px;
-			box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
-			transition: all 0.25s ease;
+			gap: 5px;
+			transition: background 0.22s ease, color 0.22s ease;
 		}
 
-		.pms-popup-img-wrap:hover .pms-popup-cta-badge {
-			background: #00ADB5;
-			color: #040d1a;
-			transform: translateY(-2px);
-			box-shadow: 0 6px 22px rgba(0, 173, 181, 0.7);
+		.pms-popup-cta-badge svg {
+			opacity: 0.85;
 		}
 
-		/* Optional caption box for title & description */
+		a.pms-popup-img-wrap:hover .pms-popup-cta-badge {
+			background: var(--pms-accent);
+			color: #ffffff;
+		}
+
+		/* ---------- Caption ---------- */
 		.pms-popup-caption-box {
-			padding: 16px 24px;
+			padding: 18px 22px 18px;
 			background: #ffffff;
-			border-top: 1px solid #f1f5f9;
 			text-align: left;
 			box-sizing: border-box;
 		}
 
-		.pms-popup-caption-box.is-link {
-			display: block;
-			text-decoration: none !important;
-			transition: background 0.2s ease;
-		}
-
-		.pms-popup-caption-box.is-link:hover {
-			background: #f8fafc;
-		}
-
 		.pms-popup-caption-title {
-			color: #0f172a !important;
-			font-size: 16px;
+			color: var(--pms-ink) !important;
+			font-size: 17px;
 			font-weight: 700;
 			line-height: 1.35;
-			letter-spacing: 0.2px;
+			letter-spacing: -0.01em;
 			margin: 0 0 6px 0;
-			transition: color 0.2s ease;
-		}
-
-		.pms-popup-caption-box.is-link:hover .pms-popup-caption-title {
-			color: #00ADB5 !important;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
 		}
 
 		.pms-popup-caption-desc {
-			color: #334155 !important;
-			font-size: 13px;
+			color: var(--pms-muted) !important;
+			font-size: 13.5px;
 			line-height: 1.6;
 			margin: 0;
-			max-height: 130px;
-			overflow-y: auto;
-			scrollbar-width: thin;
-			scrollbar-color: #cbd5e1 transparent;
+			display: -webkit-box;
+			-webkit-line-clamp: 3;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
 		}
 
-		.pms-popup-caption-desc::-webkit-scrollbar {
-			width: 4px;
-		}
-
-		.pms-popup-caption-desc::-webkit-scrollbar-thumb {
-			background: #cbd5e1;
-			border-radius: 4px;
-		}
-
-		/* Floating navigation arrows without background or borders */
+		/* ---------- Panah navigasi ---------- */
 		.pms-popup-nav-btn,
 		.pms-popup-nav-btn:hover,
 		.pms-popup-nav-btn:focus,
 		.pms-popup-nav-btn:focus-visible,
 		.pms-popup-nav-btn:active {
-			background: transparent !important;
-			background-color: transparent !important;
 			border: 0 !important;
-			border-width: 0 !important;
 			outline: none !important;
-			box-shadow: none !important;
 			-webkit-appearance: none !important;
-			-moz-appearance: none !important;
 			appearance: none !important;
 			-webkit-tap-highlight-color: transparent !important;
 		}
 
 		.pms-popup-nav-btn {
 			position: absolute;
-			top: 50%;
-			width: 46px;
-			height: 72px;
-			color: rgba(255, 255, 255, 0.85);
+			top: calc(clamp(280px, 52vh, 480px) / 2);
+			width: 36px;
+			height: 36px;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.92) !important;
+			color: #334155 !important;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			cursor: pointer;
 			z-index: 25;
 			padding: 0;
-			margin: 0;
 			opacity: 0;
 			pointer-events: none;
 			user-select: none;
 			-webkit-user-select: none;
-			filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8));
-			transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease, filter 0.25s ease;
+			box-shadow: 0 4px 14px rgba(8, 20, 35, 0.18) !important;
+			transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, color 0.2s ease;
 		}
 
 		.pms-popup-nav-prev {
-			left: 8px;
-			transform: translateY(-50%) translateX(-8px);
+			left: 12px;
+			transform: translateY(-50%) translateX(-6px);
 		}
 
 		.pms-popup-nav-next {
-			right: 8px;
-			transform: translateY(-50%) translateX(8px);
+			right: 12px;
+			transform: translateY(-50%) translateX(6px);
 		}
 
-		/* Reveal arrows smoothly on card hover (desktop) */
 		.pms-submarine-card:hover .pms-popup-nav-btn {
-			opacity: 0.7;
+			opacity: 1;
 			pointer-events: auto;
 			transform: translateY(-50%) translateX(0);
 		}
 
-		/* Glow active neon cyan on arrow hover */
 		.pms-popup-nav-btn:hover {
-			opacity: 1 !important;
-			color: #00ADB5 !important;
-			transform: translateY(-50%) scale(1.22) !important;
-			filter: drop-shadow(0 0 10px #00ADB5) drop-shadow(0 0 22px rgba(0, 173, 181, 0.9)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.9)) !important;
+			background: var(--pms-accent) !important;
+			color: #ffffff !important;
 		}
 
 		.pms-popup-nav-btn:active {
-			transform: translateY(-50%) scale(1.08) !important;
+			transform: translateY(-50%) scale(0.94) !important;
 		}
 
-		/* Mobile & tablet responsive layout */
-		@media (max-width: 768px) {
-			#gettrial.modal {
-				padding-left: 12px !important;
-				padding-right: 12px !important;
-			}
-
-			#gettrial .modal-dialog {
-				width: 100% !important;
-				max-width: 360px !important;
-				margin: auto !important;
-				min-height: calc(100% - 1.5rem) !important;
-				display: flex !important;
-				align-items: center !important;
-				justify-content: center !important;
-			}
-
-			.pms-submarine-card {
-				width: 100% !important;
-				max-width: 100% !important;
-				border-radius: 16px !important;
-				box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25) !important;
-			}
-
-			.pms-popup-slider-container {
-				min-height: 160px !important;
-				width: 100%;
-			}
-
-			.pms-popup-img-wrap {
-				max-height: 60vh !important;
-				width: 100% !important;
-				display: flex !important;
-				align-items: center !important;
-				justify-content: center !important;
-			}
-
-			.pms-popup-img-wrap img {
-				width: 100% !important;
-				height: auto !important;
-				max-height: 60vh !important;
-				object-fit: contain !important;
-				display: block !important;
-			}
-
-			.pms-submarine-close-btn {
-				top: 8px !important;
-				right: 8px !important;
-				width: 32px !important;
-				height: 32px !important;
-				background: rgba(255, 255, 255, 0.95) !important;
-				border: 1px solid rgba(0, 0, 0, 0.12) !important;
-				color: #475569 !important;
-				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
-			}
-
-			.pms-submarine-close-btn svg {
-				width: 14px !important;
-				height: 14px !important;
-			}
-
-			/* Mobile nav arrow positioning */
-			.pms-popup-nav-btn {
-				opacity: 0.9 !important;
-				pointer-events: auto !important;
-				transform: translateY(-50%) !important;
-				width: 36px !important;
-				height: 52px !important;
-			}
-
-			.pms-popup-nav-prev {
-				left: 4px !important;
-			}
-
-			.pms-popup-nav-next {
-				right: 4px !important;
-			}
-
-			.pms-popup-nav-btn svg {
-				width: 20px !important;
-				height: 28px !important;
-			}
-
-			.pms-popup-caption-box {
-				padding: 10px 14px !important;
-			}
-
-			.pms-popup-caption-title {
-				font-size: 13.5px !important;
-				margin-bottom: 3px !important;
-			}
-
-			.pms-popup-caption-desc {
-				font-size: 11.5px !important;
-				line-height: 1.45 !important;
-				max-height: 90px !important;
-			}
-
-			.pms-submarine-footer {
-				padding: 10px 14px !important;
-				gap: 8px !important;
-				flex-wrap: nowrap !important;
-			}
-
-			.pms-custom-chk-wrap {
-				padding: 2px 4px !important;
-				gap: 7px !important;
-				margin: 0 !important;
-			}
-
-			.pms-chk-box {
-				width: 15px !important;
-				height: 15px !important;
-				border-radius: 4px !important;
-				transform: none !important;
-			}
-
-			.pms-chk-icon {
-				width: 11px !important;
-				height: 11px !important;
-			}
-
-			.pms-chk-text {
-				font-size: 11.5px !important;
-				line-height: 1.35 !important;
-			}
-
-			.pms-submarine-dot {
-				width: 6px !important;
-				height: 6px !important;
-			}
-
-			.pms-submarine-dot.active {
-				width: 16px !important;
-			}
-		}
-
-		@media (min-width: 769px) and (hover: none) {
-			.pms-popup-nav-btn {
-				opacity: 0.85 !important;
-				pointer-events: auto !important;
-				transform: translateY(-50%) translateX(0) !important;
-			}
-		}
-
+		/* ---------- Footer ---------- */
 		.pms-submarine-footer {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			flex-wrap: wrap;
 			gap: 12px;
-			padding: 12px 22px;
-			background: #f8fafc;
-			border-top: 1px solid #e2e8f0;
+			padding: 14px 22px;
+			background: #ffffff;
+			border-top: 1px solid var(--pms-line);
 			font-size: 13px;
 		}
 
-		/* Precise hand-drawn style animated checkbox */
+		/* Checkbox custom dengan animasi centang */
 		.pms-custom-chk-wrap {
 			display: inline-flex !important;
 			align-items: center !important;
-			gap: 8.5px !important;
+			gap: 9px !important;
 			margin: 0 !important;
 			cursor: pointer;
 			user-select: none;
 			-webkit-user-select: none;
 			position: relative;
-			padding: 2px 6px;
-			border-radius: 6px;
 			line-height: 1.35 !important;
-			vertical-align: middle !important;
-			transition: background 0.2s ease;
-		}
-
-		.pms-custom-chk-wrap:hover {
-			background: rgba(0, 173, 181, 0.08);
 		}
 
 		.pms-real-chk {
@@ -700,20 +530,18 @@
 		}
 
 		.pms-chk-box {
-			width: 16px !important;
-			height: 16px !important;
+			width: 17px !important;
+			height: 17px !important;
 			flex-shrink: 0 !important;
-			border-radius: 4.5px !important;
+			border-radius: 5px !important;
 			background: #ffffff;
-			border: 1.6px solid #94a3b8;
+			border: 1.6px solid #cbd5e1;
 			display: inline-flex !important;
 			align-items: center !important;
 			justify-content: center !important;
 			box-sizing: border-box !important;
-			position: relative;
 			margin: 0 !important;
-			transform: none !important;
-			transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+			transition: border-color 0.2s ease, background 0.2s ease;
 		}
 
 		.pms-chk-icon {
@@ -727,21 +555,15 @@
 			stroke-dasharray: 17;
 			stroke-dashoffset: 17;
 			opacity: 0;
-			transition: opacity 0.15s ease;
 		}
 
 		.pms-custom-chk-wrap:hover .pms-chk-box {
-			border-color: #00ADB5;
-			transform: scale(1.06) !important;
-			box-shadow: 0 0 8px rgba(0, 173, 181, 0.3);
+			border-color: var(--pms-accent);
 		}
 
 		.pms-real-chk:checked + .pms-chk-box {
-			background: #00ADB5;
-			border-color: #00ADB5;
-			box-shadow: 0 0 10px rgba(0, 173, 181, 0.6), 0 1px 3px rgba(0, 0, 0, 0.15);
-			transform: none !important;
-			animation: pmsBoxPop 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+			background: var(--pms-accent);
+			border-color: var(--pms-accent);
 		}
 
 		.pms-real-chk:checked + .pms-chk-box .pms-chk-path {
@@ -749,58 +571,108 @@
 		}
 
 		.pms-real-chk:focus-visible + .pms-chk-box {
-			outline: 2px solid #00ADB5;
+			outline: 2px solid var(--pms-accent);
 			outline-offset: 2px;
 		}
 
 		.pms-chk-text {
-			color: #334155 !important;
-			font-size: 13px !important;
+			color: var(--pms-muted) !important;
+			font-size: 12.5px !important;
 			font-weight: 500;
-			letter-spacing: 0.15px;
 			line-height: 1.35 !important;
-			display: inline-block !important;
 			margin: 0 !important;
-			padding: 0 !important;
-			vertical-align: middle !important;
 			transition: color 0.2s ease;
 		}
 
-		.pms-custom-chk-wrap:hover .pms-chk-text {
-			color: #0f172a !important;
-		}
-
+		.pms-custom-chk-wrap:hover .pms-chk-text,
 		.pms-real-chk:checked ~ .pms-chk-text {
-			color: #0f172a !important;
-			font-weight: 600;
-			text-shadow: none !important;
+			color: var(--pms-ink) !important;
 		}
 
 		@keyframes pmsCheckDraw {
-			0% {
-				stroke-dashoffset: 17;
-				opacity: 0;
+			0% { stroke-dashoffset: 17; opacity: 0; }
+			30% { opacity: 1; }
+			100% { stroke-dashoffset: 0; opacity: 1; }
+		}
+
+		.pms-submarine-dots {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			flex-shrink: 0;
+		}
+
+		.pms-submarine-dot {
+			width: 7px;
+			height: 7px;
+			border-radius: 999px;
+			background: #d5dde7;
+			cursor: pointer;
+			transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease;
+		}
+
+		.pms-submarine-dot:hover {
+			background: #9fb0c2;
+		}
+
+		.pms-submarine-dot.active {
+			width: 20px;
+			background: var(--pms-accent);
+		}
+
+		/* ---------- Mobile ---------- */
+		@media (max-width: 575.98px) {
+			#gettrial .modal-dialog {
+				max-width: 100% !important;
+				padding: 0 14px;
+				margin: 1rem auto !important;
+				min-height: calc(100% - 2rem) !important;
 			}
-			30% {
-				opacity: 1;
+
+			.pms-submarine-card {
+				border-radius: 16px !important;
 			}
-			100% {
-				stroke-dashoffset: 0;
-				opacity: 1;
+
+			.pms-popup-img-wrap {
+				height: clamp(230px, 42vh, 360px);
+			}
+
+			.pms-popup-nav-btn {
+				top: calc(clamp(230px, 42vh, 360px) / 2);
+				opacity: 1 !important;
+				pointer-events: auto !important;
+				transform: translateY(-50%) !important;
+				width: 32px !important;
+				height: 32px !important;
+			}
+
+			.pms-popup-nav-prev { left: 8px !important; }
+			.pms-popup-nav-next { right: 8px !important; }
+
+			.pms-popup-caption-box { padding: 15px 17px 16px !important; }
+			.pms-popup-caption-title { font-size: 15px !important; }
+			.pms-popup-caption-desc { font-size: 12.5px !important; line-height: 1.5 !important; }
+			.pms-submarine-footer { padding: 12px 17px !important; }
+			.pms-chk-text { font-size: 11.5px !important; }
+		}
+
+		/* Perangkat sentuh layar besar: panah selalu tampak */
+		@media (min-width: 576px) and (hover: none) {
+			.pms-popup-nav-btn {
+				opacity: 1 !important;
+				pointer-events: auto !important;
+				transform: translateY(-50%) translateX(0) !important;
 			}
 		}
 
-		@keyframes pmsBoxPop {
-			0% { transform: scale(0.92); }
-			60% { transform: scale(1.08); }
-			100% { transform: scale(1); }
-		}
-
-		/* Fallback for users preferring reduced motion */
 		@media (prefers-reduced-motion: reduce) {
+			#gettrial .modal-dialog,
+			.pms-popup-slide-item.active,
+			.pms-popup-img-wrap img,
+			.pms-submarine-close-btn,
+			.pms-popup-nav-btn,
 			.pms-chk-box,
-			.pms-chk-path,
-			.pms-chk-text {
+			.pms-submarine-dot {
 				transition: none !important;
 				animation: none !important;
 			}
@@ -809,43 +681,22 @@
 				opacity: 1 !important;
 			}
 		}
-
-		.pms-submarine-dots {
-			display: flex;
-			align-items: center;
-			gap: 8px;
-		}
-
-		.pms-submarine-dot {
-			width: 8px;
-			height: 8px;
-			border-radius: 4px;
-			background: #cbd5e1;
-			cursor: pointer;
-			transition: all 0.3s ease;
-		}
-
-		.pms-submarine-dot.active {
-			width: 22px;
-			background: #00ADB5;
-			box-shadow: 0 0 8px rgba(0, 173, 181, 0.6);
-		}
 	</style>
 
 	<div class="modal fade" id="gettrial" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="true">
 		<div class="modal-dialog modal-dialog-centered" role="document">
 			<div class="modal-content pms-submarine-card">
-				<!-- Floating Close Button -->
+				<!-- Tombol tutup -->
 				<button type="button" class="pms-submarine-close-btn" data-dismiss="modal" aria-label="Close" onclick="handlePmsPopupClose();">
-					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 						<line x1="18" y1="6" x2="6" y2="18"></line>
 						<line x1="6" y1="6" x2="18" y2="18"></line>
 					</svg>
 				</button>
 
-				<!-- Popup Slides Container -->
+				<!-- Slide popup -->
 				<div class="pms-popup-slider-container">
-					<?php foreach ($activeWelcomePopups as $idx => $popup) { 
+					<?php foreach ($activeWelcomePopups as $idx => $popup) {
 						$hasUrl = !empty($popup['url']);
 						$targetBlank = !empty($popup['is_new_tab']) ? '_blank' : '_self';
 
@@ -865,7 +716,7 @@
 									<img src="<?php echo esc($popup['resolved_img']); ?>" alt="<?php echo esc($popTitle ?: 'Pelindo Marines Welcome'); ?>" class="img-fluid" onerror="pmsPopupImgFailed(this)">
 									<span class="pms-popup-cta-badge">
 										<?php echo $txtVisit; ?>
-										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+										<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
 											<line x1="7" y1="17" x2="17" y2="7"></line>
 											<polyline points="7 7 17 7 17 17"></polyline>
 										</svg>
@@ -878,45 +729,35 @@
 							<?php } ?>
 
 							<?php if ($hasCaption) { ?>
-								<?php if ($hasUrl) { ?>
-									<a href="<?php echo esc($popup['url'], 'attr'); ?>" target="<?php echo $targetBlank; ?>" rel="noopener" class="pms-popup-caption-box is-link">
-										<?php if (!empty($popTitle)) { ?>
-											<h4 class="pms-popup-caption-title"><?php echo esc($popTitle); ?></h4>
-										<?php } ?>
-										<?php if (!empty($popDesc)) { ?>
-											<div class="pms-popup-caption-desc"><?php echo nl2br(esc($popDesc)); ?></div>
-										<?php } ?>
-									</a>
-								<?php } else { ?>
-									<div class="pms-popup-caption-box">
-										<?php if (!empty($popTitle)) { ?>
-											<h4 class="pms-popup-caption-title"><?php echo esc($popTitle); ?></h4>
-										<?php } ?>
-										<?php if (!empty($popDesc)) { ?>
-											<div class="pms-popup-caption-desc"><?php echo nl2br(esc($popDesc)); ?></div>
-										<?php } ?>
-									</div>
-								<?php } ?>
+								<div class="pms-popup-caption-box">
+									<?php if (!empty($popTitle)) { ?>
+										<h4 class="pms-popup-caption-title"><?php echo esc($popTitle); ?></h4>
+									<?php } ?>
+									<?php if (!empty($popDesc)) { ?>
+										<div class="pms-popup-caption-desc"><?php echo nl2br(esc($popDesc)); ?></div>
+									<?php } ?>
+								</div>
 							<?php } ?>
+
 						</div>
 					<?php } ?>
 
 					<?php if ($popupCount > 1) { ?>
-						<!-- Floating Navigation Arrows -->
+						<!-- Navigasi antar slide -->
 						<div role="button" tabindex="0" class="pms-popup-nav-btn pms-popup-nav-prev" onclick="pmsPrevPopup();" onkeydown="if(event.key==='Enter'||event.key===' '){pmsPrevPopup();event.preventDefault();}" aria-label="Previous">
-							<svg width="24" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
 								<polyline points="15 18 9 12 15 6"></polyline>
 							</svg>
 						</div>
 						<div role="button" tabindex="0" class="pms-popup-nav-btn pms-popup-nav-next" onclick="pmsNextPopup();" onkeydown="if(event.key==='Enter'||event.key===' '){pmsNextPopup();event.preventDefault();}" aria-label="Next">
-							<svg width="24" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
 								<polyline points="9 18 15 12 9 6"></polyline>
 							</svg>
 						</div>
 					<?php } ?>
 				</div>
 
-				<!-- Maritime Footer -->
+				<!-- Footer: opsi jangan tampilkan lagi + indikator slide -->
 				<div class="pms-submarine-footer">
 					<label class="d-inline-flex align-items-center mb-0 pms-custom-chk-wrap" for="chk-pms-dontshow">
 						<input type="checkbox" id="chk-pms-dontshow" class="pms-real-chk">

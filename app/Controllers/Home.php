@@ -172,7 +172,6 @@ class Home extends BaseController
         return $this->renderPage('services/vessel', [
             'vesselcat'    => $this->servicesModel->getVesselCat(),
             'vessels'      => $this->servicesModel->getVessels(),
-            'allvessel'    => $this->servicesModel->getVesselsAll(),
             'searchresult' => $this->servicesModel->getKeyword($keyword),
             'fkeyword'     => $keyword,
         ]);

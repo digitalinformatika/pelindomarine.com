@@ -16,11 +16,6 @@ class ServicesModel extends Model
         return $this->db->table('kapal')->orderBy('KAPAL_ID', 'ASC')->get()->getResultArray();
     }
 
-    public function getVesselsAll(): array
-    {
-        return $this->db->table('kapal')->orderBy('REGION', 'ASC')->get()->getResultArray();
-    }
-
     public function getKeyword(?string $string): array
     {
         if ($string === null || $string === '') {
