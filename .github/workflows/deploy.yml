@@ -28,4 +28,22 @@ jobs:
           command_timeout: 20m
           envs: GH_TOKEN,GIT_SHA
           script: |
+            set -e
+
             GH_TOKEN="${GH_TOKEN}" GIT_SHA="${GIT_SHA}" /opt/deploy/deploy.sh pelindomarine.com
+
+            # Folder upload & writable harus bisa ditulis PHP-FPM. Checkout saat
+            # deploy membuatnya dimiliki root, sehingga cache/session/log CI4
+            # dan penyalinan media gagal ditulis.
+            # 33 = uid/gid www-data pada image PHP berbasis Debian/Ubuntu.
+            APP=/var/www/pelindomarine.com
+            WEB_UID=33
+
+            SUDO=""
+            [ "$(id -u)" -eq 0 ] || SUDO="sudo"
+
+            $SUDO mkdir -p "$APP/public/uploads" "$APP/writable"
+            $SUDO chown -R "$WEB_UID:$WEB_UID" "$APP/public/uploads" "$APP/writable"
+            $SUDO chmod -R u+rwX,g+rwX "$APP/public/uploads" "$APP/writable"
+            # setgid: subfolder baru ikut mewarisi grup induknya.
+            $SUDO find "$APP/public/uploads" "$APP/writable" -type d -exec chmod g+s {} +
