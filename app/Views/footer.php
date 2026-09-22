@@ -1520,8 +1520,8 @@
       ga('send', 'pageview');
     </script>
     <!-- Chatbot Marime -->
-    <link rel="stylesheet" href="<?php echo base_url('/'); ?>assets/css/chat-widget.css">
-    <script src="<?php echo base_url('/'); ?>assets/js/chat-widget.js" defer></script>
+    <link rel="stylesheet" href="<?php echo base_url('/'); ?>assets/css/chat-widget.css?ver=4">
+    <script src="<?php echo base_url('/'); ?>assets/js/chat-widget.js?ver=4" defer></script>
 	</body>
 </html>
 
