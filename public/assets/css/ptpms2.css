@@ -4438,3 +4438,24 @@ a.othernews-card:hover .othernews-headline{
 		display: block;
 	}
 }
+
+/* Galeri area operasional (homepage): semua kartu dikunci ke rasio 4:3
+   (ukuran gambar lama 999x747). Gambar dari CMS yang rasionya berbeda
+   dipotong di tengah (object-fit: cover), bukan meregangkan kartu. */
+.box-docks .docksimg {
+	position: relative;
+	overflow: hidden;
+}
+.box-docks .docksimg > a.docksgal {
+	display: block;
+	aspect-ratio: 999 / 747;
+	overflow: hidden;
+	background: #0b192c;
+}
+.box-docks .docksimg > a.docksgal img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+}
