@@ -11,6 +11,7 @@
 		if ($p['type']=='introdesc') $pintrodesc = $p['value'];
 		if ($p['type']=='intro_id') $pintroid = $p['value'];
 		if ($p['type']=='introdesc_id') $pintrodescid = $p['value'];
+		if ($p['type']=='intro_image') $pintroimage = $p['value'];
 	}
 
 	// Persiapkan background banner
@@ -32,19 +33,35 @@
 		}
 		if ($bImg) {
 			$b['resolved_img'] = $bImg;
+			// Banner video: dikenali dari ekstensi file (mp4/webm), dirender
+			// sebagai <video> autoplay tanpa suara, bukan background-image.
+			$b['is_video']  = (bool) preg_match('/\.(mp4|webm)(\?.*)?$/i', $bRel);
+			$b['mime']      = preg_match('/\.webm(\?.*)?$/i', $bRel) ? 'video/webm' : 'video/mp4';
 			$activeBanners[] = $b;
 		}
 	}
+	// Judul intro di database ditulis "PT Pelindo<br> Marine Service". Di layar
+	// lebar dijadikan satu baris; pemenggalan hanya dipakai di HP (.pms-br).
+	$introTitle = static fn (?string $t): string =>
+		preg_replace('#\s*<br\s*/?>\s*#i', ' <span class="pms-br"></span>', (string) $t);
 	$bannerCount = count($activeBanners);
 	$fallbackBg = base_url('upload/homepage/p-mainimage.jpg');
+	// Background section: gambar tunggal dipasang langsung; selain itu (slider
+	// atau video) cukup fallback, slide-nya yang menutupi area hero.
+	$singleImage = $bannerCount === 1 && empty($activeBanners[0]['is_video']);
 ?>
-	<section id="pms-welcome" class="js-fullheight" style="position: relative; overflow: hidden; background-color: #0b192c; <?php if ($bannerCount <= 1) { ?>background-image: <?php echo $bannerCount === 1 ? "url('" . esc($activeBanners[0]['resolved_img'], 'attr') . "'), " : ''; ?>url('<?php echo esc($fallbackBg, 'attr'); ?>'); background-size: cover; background-position: center;<?php } ?>" data-next="yes">
+	<section id="pms-welcome" class="js-fullheight" style="position: relative; overflow: hidden; background-color: #0b192c; background-image: <?php echo $singleImage ? "url('" . esc($activeBanners[0]['resolved_img'], 'attr') . "'), " : ''; ?>url('<?php echo esc($fallbackBg, 'attr'); ?>'); background-size: cover; background-position: center;" data-next="yes">
 
-		<?php if ($bannerCount > 1) { ?>
+		<?php if ($bannerCount > 1 || ($bannerCount === 1 && !$singleImage)) { ?>
 		<!-- Hero Slider Background (Otomatis Slide, Tanpa Tombol Navigasi) -->
 		<div class="pms-hero-slider-wrap" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; overflow: hidden; z-index: 1;">
 			<?php foreach ($activeBanners as $idx => $b) { ?>
-				<div class="pms-hero-slide" data-duration="<?php echo (int) ($b['durasi'] ?? 5); ?>" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('<?php echo esc($b['resolved_img'], 'attr'); ?>'), url('<?php echo esc($fallbackBg, 'attr'); ?>'); background-size: cover; background-position: center; background-repeat: no-repeat; opacity: <?php echo $idx === 0 ? '1' : '0'; ?>; transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1); will-change: opacity;">
+				<div class="pms-hero-slide" data-duration="<?php echo (int) ($b['durasi'] ?? 5); ?>" data-video="<?php echo $b['is_video'] ? '1' : '0'; ?>" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; <?php if (!$b['is_video']) { ?>background-image: url('<?php echo esc($b['resolved_img'], 'attr'); ?>'), url('<?php echo esc($fallbackBg, 'attr'); ?>'); background-size: cover; background-position: center; background-repeat: no-repeat;<?php } else { ?>background: #0b192c url('<?php echo esc($fallbackBg, 'attr'); ?>') center / cover no-repeat;<?php } ?> opacity: <?php echo $idx === 0 ? '1' : '0'; ?>; transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1); will-change: opacity;">
+					<?php if ($b['is_video']) { ?>
+						<video class="pms-hero-video" muted playsinline <?php echo $idx === 0 ? 'autoplay' : ''; ?> <?php echo $bannerCount === 1 ? 'loop' : ''; ?> preload="<?php echo $idx === 0 ? 'auto' : 'metadata'; ?>" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; pointer-events: none;">
+							<source src="<?php echo esc($b['resolved_img'], 'attr'); ?>" type="<?php echo $b['mime']; ?>">
+						</video>
+					<?php } ?>
 					<?php if (!empty($b['url'])) { ?>
 						<a href="<?php echo esc($b['url'], 'attr'); ?>" target="<?php echo !empty($b['is_new_tab']) ? '_blank' : '_self'; ?>" rel="noopener" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; z-index: 2; text-indent: -9999px;">Banner Link</a>
 					<?php } ?>
@@ -54,26 +71,64 @@
 		<script>
 		(function() {
 			var slides = document.querySelectorAll('#pms-welcome .pms-hero-slide');
-			if (!slides || slides.length <= 1) return;
+			if (!slides || !slides.length) return;
 			var currentIdx = 0;
 			var timerId = null;
+
+			function videoOf(slide) {
+				return slide.querySelector('video.pms-hero-video');
+			}
+
+			function playVideo(slide) {
+				var v = videoOf(slide);
+				if (!v) return;
+				try { v.currentTime = 0; } catch (e) {}
+				var p = v.play();
+				if (p && typeof p.catch === 'function') p.catch(function () {});
+			}
+
+			function stopVideo(slide) {
+				var v = videoOf(slide);
+				if (!v) return;
+				v.onended = null;
+				v.pause();
+			}
+
+			// Slide gambar: pindah setelah durasi dari CMS.
+			// Slide video: pindah saat video selesai; bila video tidak bisa
+			// diputar (autoplay diblokir / file gagal), pakai durasi sebagai cadangan.
+			function schedule(slide) {
+				clearTimeout(timerId);
+				if (slides.length <= 1) return;
+
+				var dur = parseInt(slide.getAttribute('data-duration') || '5', 10);
+				if (isNaN(dur) || dur < 1) dur = 5;
+
+				var v = videoOf(slide);
+				if (v) {
+					v.onended = advanceSlide;
+					timerId = setTimeout(function () {
+						if (v.paused || v.ended || v.error) advanceSlide();
+					}, Math.max(dur, 10) * 1000);
+					return;
+				}
+				timerId = setTimeout(advanceSlide, dur * 1000);
+			}
 
 			function advanceSlide() {
 				var prev = slides[currentIdx];
 				currentIdx = (currentIdx + 1) % slides.length;
 				var next = slides[currentIdx];
 
+				stopVideo(prev);
 				prev.style.opacity = '0';
 				next.style.opacity = '1';
-
-				var dur = parseInt(next.getAttribute('data-duration') || '5', 10);
-				if (isNaN(dur) || dur < 1) dur = 5;
-				timerId = setTimeout(advanceSlide, dur * 1000);
+				playVideo(next);
+				schedule(next);
 			}
 
-			var initDur = parseInt(slides[0].getAttribute('data-duration') || '5', 10);
-			if (isNaN(initDur) || initDur < 1) initDur = 5;
-			timerId = setTimeout(advanceSlide, initDur * 1000);
+			playVideo(slides[0]);
+			schedule(slides[0]);
 		})();
 		</script>
 		<?php } ?>
@@ -314,7 +369,17 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-md-6 nopadding animate-box">
-					<img src="images/p-bgabout.png?ver=1" alt="" title="" class="img-fluid">
+					<?php
+						// Gambar intro: upload CMS (Lain-Lain > Gambar Intro Homepage),
+						// cadangan gambar bawaan bila belum diatur / file tidak ada.
+						$introDefault = base_url('images/p-bgabout.png?ver=1');
+						$introImg     = $introDefault;
+						if (!empty(trim((string) ($pintroimage ?? '')))) {
+							// Nilai tersimpan "intro/Y/m/<file>" (relatif ke folder upload CMS), sama seperti banner.
+							$introImg = cms_media_url(trim($pintroimage), '', true) ?: $introDefault;
+						}
+					?>
+					<img src="<?php echo esc($introImg); ?>" alt="" title="" class="img-fluid" <?= img_fallback_attr($introDefault) ?>>
 				</div>
 				<div class="col-md-6">
 					<div class="row">
@@ -322,7 +387,7 @@
 							<?php if ($weblangs=='english') { ?>
 							<div class="pms-feature">
 								<div class="animate-box">
-									<h1 class="themeblue fbiryani"><?php echo $pintro; ?></h1>
+									<h1 class="themeblue fbiryani pms-intro-title"><?php echo $introTitle($pintro ?? ''); ?></h1>
 								</div>
 							</div>
 							<div class="pms-feature">
@@ -339,7 +404,7 @@
 							<?php if ($weblangs=='indonesia') { ?>
 							<div class="pms-feature">
 								<div class="animate-box">
-									<h1 class="themeblue fbiryani"><?php echo $pintroid; ?></h1>
+									<h1 class="themeblue fbiryani pms-intro-title"><?php echo $introTitle($pintroid ?? ''); ?></h1>
 								</div>
 							</div>
 							<div class="pms-feature">
@@ -448,11 +513,20 @@
 					<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
 						integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 					<script>
+						// Warna per region (sama dengan pin1/2/3.png lama).
 						const icons = {
-							west:   { name: "West",    icon: "./images/pin1.png" },
-							middle: { name: "Central", icon: "./images/pin2.png" },
-							east:   { name: "East",    icon: "./images/pin3.png" },
+							west:   { name: "West",    color: "#EB4B4B" },
+							middle: { name: "Central", color: "#F2944B" },
+							east:   { name: "East",    color: "#3FC22B" },
 						};
+
+						// Pin berbentuk tetes (SVG) supaya proporsinya tidak gepeng
+						// seperti PNG bulat 25x25 yang dulu dipaksa tampil 27x43.
+						function pinSvg(color, w, h) {
+							return '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="0 0 28 40">' +
+								'<path d="M14 1C6.8 1 1 6.7 1 13.8 1 23.4 14 39 14 39s13-15.6 13-25.2C27 6.7 21.2 1 14 1z" fill="' + color + '" stroke="#fff" stroke-width="2"/>' +
+								'<circle cx="14" cy="14" r="5" fill="#fff"/></svg>';
+						}
 
 						// Peta OpenStreetMap via Leaflet
 						var map = L.map('map', {
@@ -472,12 +546,13 @@
 
 						function addMarker(prop) {
 							var options = {};
-							if (prop.iconImage) {
-								options.icon = L.icon({
-									iconUrl: prop.iconImage,
-									iconSize: [27, 43],
-									iconAnchor: [13, 43],
-									popupAnchor: [0, -45]
+							if (prop.region && icons[prop.region]) {
+								options.icon = L.divIcon({
+									className: 'pms-map-pin',
+									html: pinSvg(icons[prop.region].color, 28, 40),
+									iconSize: [28, 40],
+									iconAnchor: [14, 39],   // ujung bawah pin tepat di koordinat
+									popupAnchor: [0, -36]
 								});
 							}
 							var marker = L.marker([prop.coordinates.lat, prop.coordinates.lng], options).addTo(map);
@@ -502,15 +577,15 @@
 								if (count($kord) < 2) continue;
 								$latit = substr($kord[0], strpos($kord[0], "@") + 1);
 
-								$sicon = "pin1.png";
-								if ($mapItem['MAP_REGION']=="East") $sicon = "pin3.png";
-								if ($mapItem['MAP_REGION']=="Middle") $sicon = "pin2.png";
+								$sregion = "west";
+								if ($mapItem['MAP_REGION']=="East") $sregion = "east";
+								if ($mapItem['MAP_REGION']=="Middle") $sregion = "middle";
 
 								$foto = $mapItem['MAP_PHOTO'] !== "" ? $mapItem['MAP_PHOTO'] : "nopic.jpg";
 						?>
 						addMarker({
 						   coordinates:{lat: <?php echo $latit; ?>, lng: <?php echo $kord[1]; ?>},
-						   iconImage:'./images/<?php echo $sicon; ?>',
+						   region:'<?php echo $sregion; ?>',
 						   content:	'<div class="row" style="margin:0;padding:0;overflow:hidden;"><div class=""><img src="./upload/maps/<?php echo $foto; ?>" width="100" style="margin-right: 15px; margin-bottom: 7px;"></div>' +
 									'<div style="margin-right: 25px;"><div class="maptitle"><?php echo $mapItem['MAP_TITLE']; ?></div>' +
 									'<span style="font-size: 12px;" ?><?php echo $mapItem['MAP_ADDRESS']; ?></span><br><br><a href="<?php echo $maplink; ?>" class="maplink" target="_blank">View Location</a></div></div>'
@@ -523,13 +598,41 @@
 							var legend = document.getElementById('legend');
 							for (const key in icons) {
 								const div = document.createElement('div');
-								div.innerHTML = '<img src="' + icons[key].icon + '" height="22"> ' + icons[key].name;
+								div.className = 'pms-legend-item';
+								div.innerHTML = pinSvg(icons[key].color, 14, 20) + '<span>' + icons[key].name + '</span>';
 								legend.appendChild(div);
 							}
 							return legend;
 						};
 						legendControl.addTo(map);
 					</script>
+					<style>
+						/* divIcon bawaan Leaflet memberi kotak putih + border; dihapus. */
+						.leaflet-div-icon.pms-map-pin,
+						.pms-map-pin {
+							background: none;
+							border: 0;
+						}
+						.pms-map-pin svg {
+							display: block;
+							filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .35));
+							transition: transform .15s ease;
+							transform-origin: 50% 100%;
+						}
+						.pms-map-pin:hover svg {
+							transform: scale(1.15);
+						}
+						.pms-legend-item {
+							display: flex;
+							align-items: center;
+							gap: 8px;
+							line-height: 1.6;
+						}
+						.pms-legend-item svg {
+							flex: 0 0 auto;
+							filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .3));
+						}
+					</style>
 				</div>
 			</div>
 			
@@ -542,23 +645,27 @@
 			<div class="row">
 				<div class="col-md-12 nopadding">
 					<div class="owl-carousel docks">
-						<?php foreach ($homedockgal as $dock) { ?>
+						<?php foreach ($homedockgal as $dock) {
+							// Galeri area operasional dikelola dari CMS (Galeri Area Operasional).
+							// Upload baru: "dock/Y/m/<file>" di folder upload CMS;
+							// data lama: "homepage/p-slide1.jpg" di public/upload website.
+							$dockRel = ltrim(trim((string) ($dock['dockimage'] ?? '')), '/');
+							if ($dockRel !== '' && is_file(FCPATH . 'upload/' . $dockRel)) {
+								$dockImg = base_url('upload/' . $dockRel);
+							} else {
+								$dockImg = cms_media_url($dockRel, '', true) ?: base_url('upload/' . $dockRel);
+							}
+							$isEn      = $weblangs == 'english';
+							$dockTitle = $isEn ? ($dock['title'] ?: $dock['titleid']) : ($dock['titleid'] ?: $dock['title']);
+							$dockDesc  = $isEn ? ($dock['descs'] ?: $dock['deskripsi']) : ($dock['deskripsi'] ?: $dock['descs']);
+						?>
 						<div class="box-docks">
 							<div class="docksimg">
-								<?php if ($weblangs=='english') { ?>
-								<a href="upload/<?php echo $dock['dockimage']; ?>" class="docksgal" data-title="<?php echo $dock['title']; ?>" data-caption="<?php echo $dock['descs']; ?>">
-								<?php } ?>
-								<?php if ($weblangs=='indonesia') { ?>
-								<a href="upload/<?php echo $dock['dockimage']; ?>" class="docksgal" data-title="<?php echo $dock['titleid']; ?>" data-caption="<?php echo $dock['deskripsi']; ?>">
-								<?php } ?>
-								<img src="upload/<?php echo $dock['dockimage']; ?>" alt="" /></a>
+								<a href="<?php echo esc($dockImg, 'attr'); ?>" class="docksgal" data-title="<?php echo esc($dockTitle, 'attr'); ?>" data-caption="<?php echo esc($dockDesc, 'attr'); ?>">
+								<img src="<?php echo esc($dockImg, 'attr'); ?>" alt="<?php echo esc($dockTitle, 'attr'); ?>" /></a>
 								<div class="docks-desc">
-									<div class="docks-title">
-										<?php if ($weblangs=='english') { ?><?php echo $dock['title']; ?><?php } ?>
-										<?php if ($weblangs=='indonesia') { ?><?php echo $dock['titleid']; ?><?php } ?>
-									</div>
-									<?php if ($weblangs=='english') { ?><p><?php echo $dock['descs']; ?></p><?php } ?>
-									<?php if ($weblangs=='indonesia') { ?><p><?php echo $dock['deskripsi']; ?></p><?php } ?>
+									<div class="docks-title"><?php echo esc($dockTitle); ?></div>
+									<p><?php echo esc($dockDesc); ?></p>
 								</div>
 							</div>
 						</div>

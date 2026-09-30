@@ -47,7 +47,19 @@ class HomepageModel extends Model
 
     public function getHomeDockGal(): array
     {
-        return $this->db->table('dock_gals')->orderBy('id', 'ASC')->get()->getResultArray();
+        $builder = $this->db->table('dock_gals');
+
+        // Kolom status & urutan ditambahkan migration CMS; sebelum migration
+        // dijalankan, tetap tampil semua sesuai urutan id seperti dulu.
+        $fields = array_map('strtolower', $this->db->getFieldNames('dock_gals'));
+        if (in_array('status', $fields, true)) {
+            $builder->where('status', 1);
+        }
+        if (in_array('urutan', $fields, true)) {
+            $builder->orderBy('urutan', 'ASC');
+        }
+
+        return $builder->orderBy('id', 'ASC')->get()->getResultArray();
     }
 
     public function getHomeNews(int $limit = 4): array
